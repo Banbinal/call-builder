@@ -17,6 +17,45 @@ npm run build    # bundle statique dans dist/ (fonctionne en file://)
 Le backlog complet est dans [spec.md](spec.md), les conventions du projet dans
 [CLAUDE.md](CLAUDE.md).
 
+## Déploiement (T10)
+
+Le build est entièrement statique (`base: './'` dans Vite, routage par hash
+`#/l1`…`#/l4`) : il fonctionne tel quel en `file://`, sous un sous-chemin
+GitHub Pages, ou sur n'importe quel hébergement statique. Aucune réécriture
+d'URL côté serveur n'est nécessaire — le rechargement d'un onglet ne peut pas
+produire de 404, le serveur ne voit jamais le fragment.
+
+### Cible 1 — GitHub Pages (par défaut)
+
+Le workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml)
+teste, builde et publie `dist/` à chaque push sur `main`. Mise en place, une
+seule fois :
+
+1. Créer le dépôt GitHub et pousser la branche `main` :
+
+   ```bash
+   gh repo create call-builder --public --source . --push
+   ```
+
+2. Dans **Settings → Pages**, choisir **Source : GitHub Actions**.
+3. Pousser (ou relancer le workflow via **Actions → deploy-pages → Run
+   workflow**). L'app est servie sur
+   `https://<compte>.github.io/<repo>/`.
+
+### Cible 2 — o2switch (hébergement statique)
+
+Pas de Node ni de Passenger nécessaires ici : seuls les fichiers de `dist/`
+sont déposés.
+
+1. `npm run build` en local.
+2. Via le gestionnaire de fichiers cPanel (ou FTP/SFTP), copier **le contenu**
+   de `dist/` dans le dossier cible — `public_html/` pour la racine du
+   domaine, ou n'importe quel sous-dossier (`public_html/call-builder/`) :
+   les chemins relatifs du build s'accommodent des deux.
+3. C'est tout — l'app est servie à l'URL correspondante. En cas de mise à
+   jour, re-déposer le contenu de `dist/` (les noms de fichiers hashés
+   évitent tout problème de cache).
+
 ## Test manuel de la couche provider (T1)
 
 La couche d'appel (`src/engine/provider.ts`) s'appelle directement depuis la

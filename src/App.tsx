@@ -1,12 +1,31 @@
-import { useState } from 'react'
-import { levels, type LevelId } from './levels'
+import { useEffect, useState } from 'react'
+import { levels } from './levels'
+import { HomePage } from './components/HomePage'
 import { ProviderBar } from './components/ProviderBar'
 import { ProviderProvider } from './state/ProviderContext'
 import { L2ConfigProvider } from './state/L2ConfigContext'
+import { pageHash, parsePageHash, type PageId } from './router'
+
+// La page courante vit dans le fragment d'URL (#/l1…) : un onglet se partage
+// par lien et survit au rechargement, y compris servi en statique (cf. router.ts).
+function useHashPage(): PageId {
+  const [page, setPage] = useState<PageId>(() => parsePageHash(window.location.hash))
+  useEffect(() => {
+    const onHashChange = () => setPage(parsePageHash(window.location.hash))
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+  return page
+}
+
+const tabs: { id: PageId; label: string }[] = [
+  { id: 'accueil', label: 'Accueil' },
+  ...levels.map((l) => ({ id: l.id, label: `${l.id} — ${l.title}` })),
+]
 
 export default function App() {
-  const [active, setActive] = useState<LevelId>('L1')
-  const level = levels.find((l) => l.id === active)!
+  const page = useHashPage()
+  const level = levels.find((l) => l.id === page)
 
   return (
     <ProviderProvider>
@@ -20,28 +39,28 @@ export default function App() {
               </p>
             </div>
             <nav
-              className="mx-auto flex max-w-5xl gap-1 px-6"
+              className="mx-auto flex max-w-5xl flex-wrap gap-1 px-6"
               aria-label="Niveaux"
             >
-              {levels.map((l) => (
-                <button
-                  key={l.id}
-                  onClick={() => setActive(l.id)}
-                  aria-current={l.id === active ? 'page' : undefined}
+              {tabs.map((tab) => (
+                <a
+                  key={tab.id}
+                  href={pageHash(tab.id)}
+                  aria-current={tab.id === page ? 'page' : undefined}
                   className={`rounded-t-md border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                    l.id === active
+                    tab.id === page
                       ? 'border-indigo-600 text-indigo-700'
                       : 'border-transparent text-slate-500 hover:text-slate-800'
                   }`}
                 >
-                  {l.id} — {l.title}
-                </button>
+                  {tab.label}
+                </a>
               ))}
             </nav>
           </header>
           <ProviderBar />
           <main className="mx-auto max-w-5xl px-6 py-8">
-            <level.Component />
+            {level ? <level.Component /> : <HomePage />}
           </main>
         </div>
       </L2ConfigProvider>
