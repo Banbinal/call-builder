@@ -16,3 +16,4 @@
 | 008 | [Niveau L4 — scénario MCP scripté en données statiques, annotations injectables, schéma du tool aligné T6 par construction](ADR-008-niveau-l4-scenario-mcp-statique-annotations-injectables.md) | acceptée | 2026-06-12 |
 | 009 | [Mode chaos — harness pur à validateur injecté, pannes simulées en décorateur de provider](ADR-009-mode-chaos-harness-pur-validateur-injecte-chaos-decorateur.md) | acceptée | 2026-06-12 |
 | 010 | [Déploiement statique T10 — routeur hash maison, accueil hors niveaux, Pages via Actions](ADR-010-deploiement-statique-routeur-hash-accueil-pages-actions.md) | acceptée | 2026-06-12 |
+| 011 | [Proxy atelier T11 — repo séparé, garde-fous faits main, passthrough SSE brut](ADR-011-proxy-atelier-repo-separe-garde-fous-faits-main.md) | acceptée | 2026-06-12 |

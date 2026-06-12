@@ -30,6 +30,8 @@ simulées, timeline horodatée et compteur de coût. Depuis T10, l'app est
 déployée sur <https://banbinal.github.io/call-builder/> : routage hash
 (`#/l1`…`#/l4`, onglets partageables et rechargeables), page d'accueil atelier,
 workflow GitHub Pages sur push `main`, cible o2switch statique documentée).
+Côté épic 2, **T11 livré** : le proxy atelier vit dans le repo frère
+`call-builder-proxy` (git local, non déployé) — cf. § Proxy atelier.
 
 ## 2. Stack
 
@@ -119,6 +121,11 @@ workflow GitHub Pages sur push `main`, cible o2switch statique documentée).
   onglets, L2 l'édite, L3 la « replie » dans la skill, et elle survit aux
   changements de niveau (cf. ADR-007).
 - **Fil rouge** : le verbatim client télécom, réutilisé de L1 à L4.
+- **Proxy atelier** (repo frère `call-builder-proxy`) : depuis T11 — relais Express
+  minimal vers `POST /v1/messages` (passthrough SSE octet par octet, clé partagée en
+  variable d'env serveur), garde-fous faits main (CORS, token atelier, rate limit par IP,
+  allowlist de modèles, plafond `max_tokens`), logs JSON sans contenu de prompt. CommonJS
+  sans build, entrée Passenger-compatible, conçu pour o2switch. Non déployé — cf. ADR-011.
 
 ## 4. Décisions marquantes
 
