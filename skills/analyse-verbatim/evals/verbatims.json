@@ -1,0 +1,124 @@
+{
+  "themes": [
+    "facturation",
+    "réseau mobile",
+    "internet fixe",
+    "service client",
+    "application mobile",
+    "offre et contrat",
+    "livraison et installation",
+    "résiliation"
+  ],
+  "verbatims": [
+    {
+      "id": 1,
+      "verbatim": "Ma facture est passée de 29,99 € à 47,30 € ce mois-ci sans aucune explication, et le détail est introuvable.",
+      "attendu": {
+        "irritant": "Hausse de facture inexpliquée et détail introuvable",
+        "gravite": "critique",
+        "theme": "facturation",
+        "verbatim_resume": "Le client constate une hausse de facture inexpliquée et ne trouve pas le détail de celle-ci."
+      },
+      "justification": "Préjudice financier (hausse non expliquée) → critique."
+    },
+    {
+      "id": 2,
+      "verbatim": "Le débit de la fibre s'effondre tous les soirs entre 20 h et 22 h, impossible de regarder un film en streaming correctement.",
+      "attendu": {
+        "irritant": "Chute récurrente du débit fibre en soirée",
+        "gravite": "moyenne",
+        "theme": "internet fixe",
+        "verbatim_resume": "Le client subit chaque soir une forte baisse de débit qui dégrade le streaming."
+      },
+      "justification": "Récurrent et gênant, mais service partiellement rendu, pas de menace : moyenne (cas frontière documenté dans la skill)."
+    },
+    {
+      "id": 3,
+      "verbatim": "Plus aucune connexion internet depuis quatre jours malgré deux redémarrages de box ; je télétravaille, c'est intenable.",
+      "attendu": {
+        "irritant": "Coupure totale d'internet depuis quatre jours",
+        "gravite": "critique",
+        "theme": "internet fixe",
+        "verbatim_resume": "Le client est privé d'internet depuis quatre jours, ce qui compromet son télétravail."
+      },
+      "justification": "Privation totale d'un service essentiel → critique (cas frontière documenté)."
+    },
+    {
+      "id": 4,
+      "verbatim": "La page de paiement de l'appli affiche parfois un écran blanc, je dois la relancer, rien de grave mais bon.",
+      "attendu": {
+        "irritant": "Écran blanc intermittent sur la page de paiement de l'application",
+        "gravite": "faible",
+        "theme": "application mobile",
+        "verbatim_resume": "Le client rencontre parfois un écran blanc sur la page de paiement et doit relancer l'application."
+      },
+      "justification": "Gêne ponctuelle, minimisée par le client lui-même → faible."
+    },
+    {
+      "id": 5,
+      "verbatim": "Vous avez changé mon offre sans mon accord et je paie 8 € de plus par mois depuis février.",
+      "attendu": {
+        "irritant": "Changement d'offre non consenti entraînant un surcoût mensuel",
+        "gravite": "critique",
+        "theme": "offre et contrat",
+        "verbatim_resume": "Le client a vu son offre modifiée sans son accord et paie davantage chaque mois depuis février."
+      },
+      "justification": "Préjudice contractuel et financier → critique."
+    },
+    {
+      "id": 6,
+      "verbatim": "Le rendez-vous d'installation a été reporté deux fois ; j'ai toujours ma connexion actuelle chez mon ancien opérateur, mais ça commence à faire long.",
+      "attendu": {
+        "irritant": "Reports répétés du rendez-vous d'installation",
+        "gravite": "moyenne",
+        "theme": "livraison et installation",
+        "verbatim_resume": "Le client attend son installation, reportée deux fois, tout en restant connecté chez son ancien opérateur."
+      },
+      "justification": "Démarche qui n'aboutit pas, mais aucune privation (connexion existante) ni menace → moyenne (cas frontière)."
+    },
+    {
+      "id": 7,
+      "verbatim": "J'ai reçu un SMS confirmant la prise en compte de ma demande de résiliation… que je n'ai jamais faite.",
+      "attendu": {
+        "irritant": "Résiliation engagée sans demande du client",
+        "gravite": "critique",
+        "theme": "résiliation",
+        "verbatim_resume": "Le client a reçu la confirmation d'une demande de résiliation qu'il n'a jamais formulée."
+      },
+      "justification": "Préjudice contractuel (acte non consenti sur le contrat) → critique ; le sujet EST le processus de résiliation → thème résiliation."
+    },
+    {
+      "id": 8,
+      "verbatim": "La 4G passe mal dans mon village depuis toujours, je dois monter à l'étage pour téléphoner.",
+      "attendu": {
+        "irritant": "Couverture 4G insuffisante au domicile",
+        "gravite": "moyenne",
+        "theme": "réseau mobile",
+        "verbatim_resume": "Le client a une mauvaise couverture mobile chez lui et doit changer d'étage pour téléphoner."
+      },
+      "justification": "Problème permanent mais contournement existant, pas de menace → moyenne."
+    },
+    {
+      "id": 9,
+      "verbatim": "Mon prénom est mal orthographié sur la facture ; rien de grave, mais merci de corriger pour la prochaine.",
+      "attendu": {
+        "irritant": "Prénom mal orthographié sur la facture",
+        "gravite": "faible",
+        "theme": "facturation",
+        "verbatim_resume": "Le client signale une faute d'orthographe sur son prénom dans la facture et demande une correction."
+      },
+      "justification": "Gêne mineure, explicitement minimisée → faible."
+    },
+    {
+      "id": 10,
+      "verbatim": "Trois semaines que j'attends la box promise sous cinq jours, le suivi n'a pas bougé, je vais finir par annuler ma commande.",
+      "attendu": {
+        "irritant": "Livraison de la box très en retard sur le délai promis",
+        "gravite": "critique",
+        "theme": "livraison et installation",
+        "verbatim_resume": "Le client attend depuis trois semaines une box promise sous cinq jours et envisage d'annuler sa commande."
+      },
+      "justification": "Risque de départ exprimé (annulation de commande) → critique ; le sujet est la livraison, pas la résiliation."
+    }
+  ]
+}

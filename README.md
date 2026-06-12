@@ -214,6 +214,21 @@ Sur l'onglet **L2**, sans clé (sauf étape 4) :
    vs strict », « Exécuter ×20 sur A et B » : cartes vertes/rouges, et les
    synthèses affichent les deux taux — B (strict) doit être à 20/20.
 
+## Skills du workshop (T13–T15)
+
+Les trois skills distribuées aux participants vivent dans [skills/](skills/)
+(hors bundle — contenu statique uniquement) : `reecriture-ticket` (T13),
+`dictionnaire-donnees` (T14) et `analyse-verbatim` (T15, le fil rouge en
+version de référence). Chaque skill embarque son README d'installation en
+3 lignes et sa suite d'évals avec protocole et critères binaires dans son
+sous-dossier `evals/`.
+
+L'alignement de `analyse-verbatim` sur le Call Builder est vérifié à chaque
+`npm test` (`src/levels/l3/reference-skill.test.ts`) : schéma du contrat
+strictement égal au schéma T6, structure de sections de l'export L3 (T7),
+zéro alerte du linter pédagogique, vérités terrain des évals conformes au
+schéma.
+
 ## Test manuel du niveau 3 (T7)
 
 Sur l'onglet **L3 — Skills**, sans clé (tout fonctionne hors exécution) :
