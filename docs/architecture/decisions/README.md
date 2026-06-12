@@ -17,3 +17,4 @@
 | 009 | [Mode chaos — harness pur à validateur injecté, pannes simulées en décorateur de provider](ADR-009-mode-chaos-harness-pur-validateur-injecte-chaos-decorateur.md) | acceptée | 2026-06-12 |
 | 010 | [Déploiement statique T10 — routeur hash maison, accueil hors niveaux, Pages via Actions](ADR-010-deploiement-statique-routeur-hash-accueil-pages-actions.md) | acceptée | 2026-06-12 |
 | 011 | [Proxy atelier T11 — repo séparé, garde-fous faits main, passthrough SSE brut](ADR-011-proxy-atelier-repo-separe-garde-fous-faits-main.md) | acceptée | 2026-06-12 |
+| 012 | [Skills du workshop T13–T15 — dans le repo, évals en données, alignement T15 verrouillé par test](ADR-012-skills-workshop-dans-le-repo-alignement-t15-teste.md) | acceptée | 2026-06-12 |

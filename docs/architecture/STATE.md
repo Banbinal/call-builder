@@ -31,7 +31,11 @@ déployée sur <https://banbinal.github.io/call-builder/> : routage hash
 (`#/l1`…`#/l4`, onglets partageables et rechargeables), page d'accueil atelier,
 workflow GitHub Pages sur push `main`, cible o2switch statique documentée).
 Côté épic 2, **T11 livré** : le proxy atelier vit dans le repo frère
-`call-builder-proxy` (git local, non déployé) — cf. § Proxy atelier.
+`call-builder-proxy` (git local, non déployé) — cf. § Proxy atelier. Côté
+épic 3, **T13–T15 livrés** : les trois skills du workshop vivent dans
+`skills/` (hors bundle), chacune avec son README d'installation et sa suite
+d'évals ; `analyse-verbatim` est alignée sur le schéma T6 par un test —
+cf. § Skills du workshop.
 
 ## 2. Stack
 
@@ -121,6 +125,18 @@ Côté épic 2, **T11 livré** : le proxy atelier vit dans le repo frère
   onglets, L2 l'édite, L3 la « replie » dans la skill, et elle survit aux
   changements de niveau (cf. ADR-007).
 - **Fil rouge** : le verbatim client télécom, réutilisé de L1 à L4.
+- **Skills du workshop** (`skills/`) : depuis T13–T15 — trois skills Claude
+  Code distribuées aux participants, en markdown/JSON pur hors `src/` (hors
+  bundle et hors `tsc -b`). `reecriture-ticket` (T13 : ticket flou → ticket
+  exécutable, hypothèses marquées `[HYPOTHÈSE]`, 5 évals à critères
+  binaires), `dictionnaire-donnees` (T14 : gabarit de couche sémantique SQL
+  à remplir, exemple fictif 4 tables, checklist 10 points, test de refus)
+  et `analyse-verbatim` (T15 : le fil rouge en version de référence —
+  gravité à définitions opérationnelles, frontière moyenne/critique
+  documentée, 8 thèmes fermés, 10 verbatims d'éval annotés). L'alignement
+  T15 ↔ Call Builder est verrouillé par
+  `src/levels/l3/reference-skill.test.ts` (imports `?raw`, schéma strictement
+  égal à T6, structure d'export L3, linter T7 sans alerte) — cf. ADR-012.
 - **Proxy atelier** (repo frère `call-builder-proxy`) : depuis T11 — relais Express
   minimal vers `POST /v1/messages` (passthrough SSE octet par octet, clé partagée en
   variable d'env serveur), garde-fous faits main (CORS, token atelier, rate limit par IP,
@@ -166,6 +182,10 @@ Journal complet dans [`decisions/`](decisions/README.md). Notables :
   déploiement statique : routeur hash maison en fonctions pures (pas de lib),
   accueil hors `levels[]` avec résumés centralisés, déploiement Pages par
   workflow Actions sur `main`, o2switch en dépôt de `dist/`.
+- [ADR-012](decisions/ADR-012-skills-workshop-dans-le-repo-alignement-t15-teste.md) —
+  skills du workshop : dans `skills/` au sein du repo (pas de repo frère),
+  évals en données + protocole manuel à critères binaires, alignement de
+  `analyse-verbatim` sur T6/T7 verrouillé par test Vitest via imports `?raw`.
 
 ## 5. Patterns prescriptifs
 
