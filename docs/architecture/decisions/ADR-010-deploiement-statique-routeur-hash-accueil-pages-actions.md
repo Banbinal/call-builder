@@ -73,4 +73,10 @@ réécriture serveur grâce au hash.
 
 ## Notes de révision
 
-—
+- 2026-06-12 — dépôt créé et première mise en ligne effective :
+  <https://banbinal.github.io/call-builder/> (vérifiée : onglets après
+  rechargement, zéro erreur console). Le premier déploiement a révélé un
+  piège : un `package-lock.json` écrit sous Windows omet les paquets
+  wasm32-wasi et leurs peers `@emnapi/*`, que le runner Linux exige —
+  corrigé en épinglant les deux peers en devDependencies et en régénérant
+  le lock avec `--package-lock-only` (commits `223067f`, `6bf1de7`).

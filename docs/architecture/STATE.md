@@ -27,9 +27,9 @@ colonnes Agent / Protocole / Tool, messages JSON-RPC réels annotés au survol,
 schéma du tool aligné sur T6. Depuis T9, L2 embarque aussi le mode chaos : un
 harness — retry sur non-conformité, fallback de modèle — démontré sur pannes
 simulées, timeline horodatée et compteur de coût. Depuis T10, l'app est
-déployable : routage hash (`#/l1`…`#/l4`, onglets partageables et rechargeables),
-page d'accueil atelier, workflow GitHub Pages sur push `main`, cible o2switch
-statique documentée).
+déployée sur <https://banbinal.github.io/call-builder/> : routage hash
+(`#/l1`…`#/l4`, onglets partageables et rechargeables), page d'accueil atelier,
+workflow GitHub Pages sur push `main`, cible o2switch statique documentée).
 
 ## 2. Stack
 
