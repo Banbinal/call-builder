@@ -13,7 +13,7 @@ import type {
 } from './types'
 import { createSSEParser, type RawSSEMessage } from './sse'
 
-const ANTHROPIC_VERSION = '2023-06-01'
+export const ANTHROPIC_VERSION = '2023-06-01'
 
 export interface CallOptions {
   stream: boolean
@@ -75,7 +75,7 @@ export function createProvider(
       const response = await fetchFn(url, {
         method: 'POST',
         headers: buildHeaders(config),
-        body: JSON.stringify(buildBody(request, opts.stream)),
+        body: JSON.stringify(buildRequestBody(request, opts.stream)),
         signal: opts.signal,
       })
       if (!response.ok) {
@@ -120,7 +120,12 @@ function buildHeaders(config: ProviderConfig): Record<string, string> {
   return headers
 }
 
-function buildBody(
+/**
+ * Construit le corps JSON exact envoyé à `/v1/messages`. Exportée pour que le
+ * panneau requête (T4) et le codegen affichent précisément ce qui part sur le
+ * fil — une seule source de vérité pour la forme de la requête.
+ */
+export function buildRequestBody(
   request: LLMRequest,
   stream: boolean,
 ): Record<string, unknown> {

@@ -1,0 +1,274 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateCurl > snapshot — caractères à échapper 1`] = `
+"curl https://api.anthropic.com/v1/messages \\
+  -H "x-api-key: VOTRE_CLE_API" \\
+  -H "anthropic-version: 2023-06-01" \\
+  -H "content-type: application/json" \\
+  -d '{
+  "model": "claude-haiku-4-5-20251001",
+  "max_tokens": 256,
+  "messages": [
+    {
+      "role": "user",
+      "content": "L'\\''abonné a dit : \\"ça coupe\\"\\npuis a raccroché. 100 % vrai."
+    }
+  ]
+}'
+"
+`;
+
+exports[`generateCurl > snapshot — config complète (system, température, output_format) 1`] = `
+"curl https://api.anthropic.com/v1/messages \\
+  -H "x-api-key: VOTRE_CLE_API" \\
+  -H "anthropic-version: 2023-06-01" \\
+  -H "content-type: application/json" \\
+  -d '{
+  "model": "claude-sonnet-4-6",
+  "max_tokens": 500,
+  "messages": [
+    {
+      "role": "user",
+      "content": "Analyse ce verbatim."
+    },
+    {
+      "role": "assistant",
+      "content": "D'\\''accord, envoyez-le."
+    },
+    {
+      "role": "user",
+      "content": "Le chat coupe à chaque fois."
+    }
+  ],
+  "system": "Tu es un analyste de la relation client. Réponds en français.",
+  "temperature": 0.7,
+  "output_format": {
+    "type": "json_schema",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "irritant": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "irritant"
+      ],
+      "additionalProperties": false
+    }
+  }
+}'
+"
+`;
+
+exports[`generateCurl > snapshot — config minimale 1`] = `
+"curl https://api.anthropic.com/v1/messages \\
+  -H "x-api-key: VOTRE_CLE_API" \\
+  -H "anthropic-version: 2023-06-01" \\
+  -H "content-type: application/json" \\
+  -d '{
+  "model": "claude-haiku-4-5-20251001",
+  "max_tokens": 1024,
+  "messages": [
+    {
+      "role": "user",
+      "content": "Analyse ce verbatim client : \\"Impossible de joindre le service client depuis 3 jours, le chat coupe à chaque fois, je songe à résilier.\\""
+    }
+  ]
+}'
+"
+`;
+
+exports[`generateJavaScript > snapshot — caractères à échapper 1`] = `
+"const response = await fetch("https://api.anthropic.com/v1/messages", {
+  method: "POST",
+  headers: {
+    "x-api-key": "VOTRE_CLE_API",
+    "anthropic-version": "2023-06-01",
+    "content-type": "application/json",
+    // Requis uniquement pour un appel depuis un navigateur (mode BYOK) :
+    "anthropic-dangerous-direct-browser-access": "true",
+  },
+  body: JSON.stringify({
+    "model": "claude-haiku-4-5-20251001",
+    "max_tokens": 256,
+    "messages": [
+      {
+        "role": "user",
+        "content": "L'abonné a dit : \\"ça coupe\\"\\npuis a raccroché. 100 % vrai."
+      }
+    ]
+  }),
+})
+
+const data = await response.json()
+console.log(data.content[0].text)
+"
+`;
+
+exports[`generateJavaScript > snapshot — config complète (system, température, output_format) 1`] = `
+"const response = await fetch("https://api.anthropic.com/v1/messages", {
+  method: "POST",
+  headers: {
+    "x-api-key": "VOTRE_CLE_API",
+    "anthropic-version": "2023-06-01",
+    "content-type": "application/json",
+    // Requis uniquement pour un appel depuis un navigateur (mode BYOK) :
+    "anthropic-dangerous-direct-browser-access": "true",
+  },
+  body: JSON.stringify({
+    "model": "claude-sonnet-4-6",
+    "max_tokens": 500,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Analyse ce verbatim."
+      },
+      {
+        "role": "assistant",
+        "content": "D'accord, envoyez-le."
+      },
+      {
+        "role": "user",
+        "content": "Le chat coupe à chaque fois."
+      }
+    ],
+    "system": "Tu es un analyste de la relation client. Réponds en français.",
+    "temperature": 0.7,
+    "output_format": {
+      "type": "json_schema",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "irritant": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "irritant"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }),
+})
+
+const data = await response.json()
+console.log(data.content[0].text)
+"
+`;
+
+exports[`generateJavaScript > snapshot — config minimale 1`] = `
+"const response = await fetch("https://api.anthropic.com/v1/messages", {
+  method: "POST",
+  headers: {
+    "x-api-key": "VOTRE_CLE_API",
+    "anthropic-version": "2023-06-01",
+    "content-type": "application/json",
+    // Requis uniquement pour un appel depuis un navigateur (mode BYOK) :
+    "anthropic-dangerous-direct-browser-access": "true",
+  },
+  body: JSON.stringify({
+    "model": "claude-haiku-4-5-20251001",
+    "max_tokens": 1024,
+    "messages": [
+      {
+        "role": "user",
+        "content": "Analyse ce verbatim client : \\"Impossible de joindre le service client depuis 3 jours, le chat coupe à chaque fois, je songe à résilier.\\""
+      }
+    ]
+  }),
+})
+
+const data = await response.json()
+console.log(data.content[0].text)
+"
+`;
+
+exports[`generatePython > snapshot — caractères à échapper 1`] = `
+"# pip install anthropic
+import anthropic
+
+client = anthropic.Anthropic(api_key="VOTRE_CLE_API")
+
+message = client.messages.create(
+    model="claude-haiku-4-5-20251001",
+    max_tokens=256,
+    messages=[
+        {
+            "role": "user",
+            "content": "L'abonné a dit : \\"ça coupe\\"\\npuis a raccroché. 100 % vrai.",
+        },
+    ],
+)
+
+print(message.content[0].text)
+"
+`;
+
+exports[`generatePython > snapshot — config complète (system, température, output_format) 1`] = `
+"# pip install anthropic
+import anthropic
+
+client = anthropic.Anthropic(api_key="VOTRE_CLE_API")
+
+message = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=500,
+    messages=[
+        {
+            "role": "user",
+            "content": "Analyse ce verbatim.",
+        },
+        {
+            "role": "assistant",
+            "content": "D'accord, envoyez-le.",
+        },
+        {
+            "role": "user",
+            "content": "Le chat coupe à chaque fois.",
+        },
+    ],
+    system="Tu es un analyste de la relation client. Réponds en français.",
+    temperature=0.7,
+    output_format={
+        "type": "json_schema",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "irritant": {
+                    "type": "string",
+                },
+            },
+            "required": [
+                "irritant",
+            ],
+            "additionalProperties": False,
+        },
+    },
+)
+
+print(message.content[0].text)
+"
+`;
+
+exports[`generatePython > snapshot — config minimale 1`] = `
+"# pip install anthropic
+import anthropic
+
+client = anthropic.Anthropic(api_key="VOTRE_CLE_API")
+
+message = client.messages.create(
+    model="claude-haiku-4-5-20251001",
+    max_tokens=1024,
+    messages=[
+        {
+            "role": "user",
+            "content": "Analyse ce verbatim client : \\"Impossible de joindre le service client depuis 3 jours, le chat coupe à chaque fois, je songe à résilier.\\"",
+        },
+    ],
+)
+
+print(message.content[0].text)
+"
+`;

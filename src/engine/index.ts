@@ -5,7 +5,12 @@
 export const ENGINE_NAME = 'call-builder-engine'
 
 export * from './types'
-export { createProvider, mapApiError } from './provider'
+export {
+  ANTHROPIC_VERSION,
+  buildRequestBody,
+  createProvider,
+  mapApiError,
+} from './provider'
 export type { CallOptions, Provider, ProviderDeps } from './provider'
 export { runBatch } from './batch'
 export type { BatchOptions } from './batch'

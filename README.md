@@ -81,3 +81,30 @@ rouge pré-rempli) :
    formats distincts. Un clic sur une carte ouvre la réponse complète.
 3. **Erreur isolée** — couper le réseau pendant un ×N : les runs en échec
    affichent leur carte d'erreur rouge, les autres se terminent normalement.
+
+## Test manuel du panneau requête et du code généré (T4)
+
+Sur l'onglet **L1**, sans clé configurée (le panneau fonctionne en mode
+« génération de code seule ») :
+
+1. **Temps réel** — modifier le prompt ou le modèle : l'onglet « JSON annoté »
+   et les trois onglets de code se mettent à jour immédiatement, sans
+   exécution.
+2. **Annotations** — survoler chaque clé de premier niveau du JSON (`model`,
+   `max_tokens`, `messages`) : la note pédagogique correspondante s'affiche
+   dans l'encart sous le JSON.
+3. **Python exécutable tel quel** — onglet « Python », bouton « Copier »,
+   puis :
+
+   ```bash
+   pip install anthropic
+   export ANTHROPIC_API_KEY=sk-ant-…   # ou remplacer VOTRE_CLE_API dans le code
+   python le_code_copie.py
+   ```
+
+   Le script doit imprimer la réponse du modèle sans aucune modification autre
+   que la clé. Vérifié avec la config par défaut (Haiku, prompt fil rouge) et
+   avec un prompt contenant apostrophes et guillemets.
+4. **Aucune clé réelle dans le code** — coller une clé valide dans la barre
+   d'état puis rouvrir les onglets de code : ils affichent toujours
+   `VOTRE_CLE_API` (les générateurs ne reçoivent jamais la clé).

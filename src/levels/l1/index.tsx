@@ -2,7 +2,8 @@
 // streaming tel qu'il arrive (réponse assemblée en direct + flux SSE brut),
 // et le bouton ×N pour faire constater la stochasticité sur le même prompt.
 
-import { useId, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
+import { RequestPanel } from '../../components/request/RequestPanel'
 import { DEFAULT_MAX_TOKENS, FIL_ROUGE_PROMPT } from '../../config/defaults'
 import {
   runBatch,
@@ -35,13 +36,16 @@ export function L1() {
   const disabledReason =
     executeDisabledReason ?? (busy ? 'Exécution en cours…' : null)
 
-  function buildRequest(): LLMRequest {
-    return {
+  // Recalculée à chaque changement de configuration : le panneau requête
+  // (T4) se met à jour en temps réel, même sans exécuter.
+  const request = useMemo<LLMRequest>(
+    () => ({
       model,
       messages: [{ role: 'user', content: prompt }],
       max_tokens: DEFAULT_MAX_TOKENS,
-    }
-  }
+    }),
+    [model, prompt],
+  )
 
   async function execute() {
     if (!provider || busy) return
@@ -50,7 +54,7 @@ export function L1() {
     setEvents([])
     setResult(null)
     const startedAt = Date.now()
-    const res = await provider.callLLM(buildRequest(), {
+    const res = await provider.callLLM(request, {
       stream: true,
       onEvent: (event: SSEEvent) => {
         setEvents((prev) => [
@@ -67,7 +71,6 @@ export function L1() {
 
   async function executeBatch() {
     if (!provider || busy) return
-    const request = buildRequest()
     const total = batchSize
     setBatch({
       total,
@@ -149,6 +152,8 @@ export function L1() {
           </div>
         </div>
       </section>
+
+      <RequestPanel request={request} />
 
       {(running || result !== null) && (
         <section className="rounded-lg border border-slate-200 bg-white p-4">
