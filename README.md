@@ -63,3 +63,21 @@ connexion :
 - **barre d'adresse** : la clé n'apparaît dans aucune URL ;
 - **rechargement de la page** : la clé est perdue, l'indicateur repasse à
   « non configuré » — c'est le comportement voulu.
+
+## Test manuel du niveau 1 (T3)
+
+Avec une clé valide configurée, sur l'onglet **L1 — L'appel nu** (prompt fil
+rouge pré-rempli) :
+
+1. **Run unique** — cliquer « Exécuter » : le texte s'assemble en direct dans
+   le panneau Réponse ; le panneau repliable « Flux brut » liste chaque
+   événement SSE horodaté (`message_start` → `content_block_delta`… →
+   `message_stop`) ; les métriques (premier token, latence totale, tokens
+   entrée/sortie) s'affichent à la fin.
+2. **×20** — sélectionner 20 puis « Exécuter ×20 » : la barre de progression
+   avance, jamais plus de 4 appels simultanés (visible dans l'onglet Réseau
+   des DevTools), et la grille montre des réponses visiblement différentes.
+   La ligne de synthèse donne longueurs min/médiane/max et le nombre de
+   formats distincts. Un clic sur une carte ouvre la réponse complète.
+3. **Erreur isolée** — couper le réseau pendant un ×N : les runs en échec
+   affichent leur carte d'erreur rouge, les autres se terminent normalement.
