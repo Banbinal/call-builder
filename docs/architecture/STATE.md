@@ -10,10 +10,11 @@
 Outil pédagogique mono-page pour Product Owners : construire un appel LLM bloc par bloc
 sur 4 niveaux (L1 appel nu, L2 structuration, L3 skills, L4 MCP). Front statique pur,
 zéro backend, mode BYOK (clé Anthropic en mémoire uniquement). Développé ticket par
-ticket depuis `spec.md` ; état actuel : **T3 livré** (niveau L1 opérationnel : prompt
-fil rouge, réponse assemblée en direct pendant le streaming, panneau « flux brut » SSE
-horodaté, métriques par run, et galerie ×N — 5/10/20 runs, concurrence plafonnée à 4,
-synthèse longueurs/formats, échec d'un run local à sa carte).
+ticket depuis `spec.md` ; état actuel : **T4 livré** (en plus du niveau L1 complet de
+T3 : panneau « Requête » dans L1 — le JSON exact envoyé à l'API, coloré, annoté clé par
+clé au survol, mis à jour en temps réel sans exécution — et export du code équivalent
+en Python / curl / JavaScript avec bouton copier, utilisable sans clé en mode
+« génération de code seule »).
 
 ## 2. Stack
 
@@ -31,9 +32,17 @@ synthèse longueurs/formats, échec d'un run local à sa carte).
   onEvent })` → `LLMResult` (union `ok: true | false`, événements SSE bruts horodatés,
   latences, erreurs affichables en français). Fetch brut, pas de SDK — cf. ADR-002.
   Depuis T3 : `runBatch` (pool de workers pur, plafond de concurrence, échec local au
-  slot) pour les exécutions ×N — cf. ADR-003.
-- **Codegen** (`src/codegen/`) : fonctions pures `LLMRequest → string` (Python, curl,
-  JS fetch — à venir en T4).
+  slot) pour les exécutions ×N — cf. ADR-003. Depuis T4 : `buildRequestBody` exporté —
+  la même fonction construit le corps envoyé sur le fil, affiché dans le panneau
+  requête et exporté par le codegen (source unique de vérité, cf. ADR-004).
+- **Codegen** (`src/codegen/`) : fonctions pures `(LLMRequest, CodegenOptions?) →
+  string` — Python (SDK anthropic), curl, JavaScript (fetch) — testées par snapshots.
+  Les générateurs ne reçoivent jamais la clé API (placeholder `VOTRE_CLE_API` par
+  construction, cf. ADR-004). `CodegenOptions.baseUrl` prépare le mode proxy (T12).
+- **Panneau requête** (`src/components/request/`) : UI partagée construite dans L1,
+  réutilisée par les niveaux suivants — `RequestPanel` (onglets JSON annoté / Python /
+  curl / JavaScript), `AnnotatedJson` (JSON coloré, notes au survol dans un encart
+  fixe), `annotations.fr.ts` (notes pédagogiques par clé de premier niveau).
 - **Config** (`src/config/`) : constantes partagées — liste des modèles du sélecteur
   (`models.ts`, Haiku 4.5 défaut + Sonnet 4.6), URL de base Anthropic, et défauts des
   niveaux (`defaults.ts` : prompt fil rouge, `max_tokens` par défaut).
@@ -55,6 +64,9 @@ Journal complet dans [`decisions/`](decisions/README.md). Notables :
 - [ADR-003](decisions/ADR-003-niveau-l1-runbatch-pur-xn-non-streaming.md) — niveau L1 :
   `runBatch` pur dans l'engine, heuristiques de synthèse dans `levels/l1`, assemblage
   des deltas côté UI (contrat provider intact), ×N en non-streaming.
+- [ADR-004](decisions/ADR-004-panneau-requete-corps-unique-codegen-sans-cle.md) —
+  panneau requête : `buildRequestBody` source unique de vérité (fil / panneau /
+  codegen), générateurs sans clé par construction, annotations en encart fixe.
 
 ## 5. Patterns prescriptifs
 
@@ -62,4 +74,6 @@ Voir [`PATTERNS.md`](PATTERNS.md) — catalogue vide pour l'instant.
 
 ## 6. Dette technique connue
 
-Aucune dette nommée à ce stade.
+- **Source d'annotations en dur** : `AnnotatedJson` importe directement
+  `annotations.fr.ts`. T8 (simulateur MCP) réutilisera le mécanisme avec d'autres notes
+  (JSON-RPC) — il faudra alors passer la source d'annotations en prop (cf. ADR-004).
