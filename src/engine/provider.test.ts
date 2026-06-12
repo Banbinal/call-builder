@@ -23,7 +23,7 @@ function makeClock(step = 10) {
 // Flux SSE de référence, conforme au format de l'API Anthropic.
 const STREAM_FIXTURE =
   'event: message_start\n' +
-  'data: {"type":"message_start","message":{"id":"msg_01","usage":{"input_tokens":12,"output_tokens":1}}}\n\n' +
+  'data: {"type":"message_start","message":{"id":"msg_01","model":"claude-haiku-4-5-20251001","usage":{"input_tokens":12,"output_tokens":1}}}\n\n' +
   'event: content_block_start\n' +
   'data: {"type":"content_block_start","index":0,"content_block":{"type":"text","text":""}}\n\n' +
   'event: content_block_delta\n' +
@@ -60,6 +60,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 describe('callLLM — non-streaming', () => {
   const MESSAGE_BODY = {
+    model: 'claude-haiku-4-5-20251001',
     content: [{ type: 'text', text: 'Bonjour !' }],
     usage: { input_tokens: 12, output_tokens: 7 },
     stop_reason: 'end_turn',
@@ -73,6 +74,7 @@ describe('callLLM — non-streaming', () => {
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.text).toBe('Bonjour !')
+    expect(result.model).toBe('claude-haiku-4-5-20251001')
     expect(result.usage).toEqual({ inputTokens: 12, outputTokens: 7 })
     expect(result.stopReason).toBe('end_turn')
     expect(result.firstTokenLatencyMs).toBeNull()
@@ -145,6 +147,7 @@ describe('callLLM — streaming', () => {
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.text).toBe('Bonjour !')
+    expect(result.model).toBe('claude-haiku-4-5-20251001')
     expect(result.usage).toEqual({ inputTokens: 12, outputTokens: 7 })
     expect(result.stopReason).toBe('end_turn')
     expect(result.events.map((e) => e.event)).toEqual([

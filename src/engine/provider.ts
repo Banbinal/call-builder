@@ -40,13 +40,14 @@ interface AnthropicUsage {
 
 interface AnthropicStreamData {
   type?: string
-  message?: { usage?: AnthropicUsage }
+  message?: { model?: string; usage?: AnthropicUsage }
   delta?: { type?: string; text?: string; stop_reason?: string }
   usage?: AnthropicUsage
   error?: { type?: string; message?: string }
 }
 
 interface AnthropicMessageBody {
+  model?: string
   content?: Array<{ type?: string; text?: string }>
   usage?: AnthropicUsage
   stop_reason?: string | null
@@ -164,6 +165,7 @@ async function consumeStream(
   const parser = createSSEParser()
 
   let text = ''
+  let model: string | null = null
   let firstTokenAt: number | null = null
   let inputTokens = 0
   let outputTokens = 0
@@ -189,6 +191,7 @@ async function consumeStream(
     const payload = data as AnthropicStreamData
     switch (message.event) {
       case 'message_start':
+        model = payload.message?.model ?? model
         inputTokens = payload.message?.usage?.input_tokens ?? inputTokens
         break
       case 'content_block_delta':
@@ -227,6 +230,7 @@ async function consumeStream(
   return {
     ok: true,
     text,
+    model,
     usage: { inputTokens, outputTokens },
     totalLatencyMs,
     firstTokenLatencyMs: firstTokenAt === null ? null : firstTokenAt - start,
@@ -247,6 +251,7 @@ async function consumeJson(
   return {
     ok: true,
     text,
+    model: body.model ?? null,
     usage: {
       inputTokens: body.usage?.input_tokens ?? 0,
       outputTokens: body.usage?.output_tokens ?? 0,

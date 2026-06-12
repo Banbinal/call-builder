@@ -52,3 +52,14 @@ Vérifications attendues :
   `firstTokenLatencyMs < totalLatencyMs` ;
 - avec une clé invalide, le résultat est `{ ok: false, error: { type: 'auth',
   message: 'Clé API invalide…' } }` — message explicite, aucun crash.
+
+## Vérifier que la clé n'est jamais stockée (T2)
+
+La clé saisie dans la barre d'état vit uniquement dans un contexte React en
+mémoire. Pour le vérifier via DevTools après avoir collé une clé et testé la
+connexion :
+
+- **Application → Local Storage / Session Storage** : aucune entrée ;
+- **barre d'adresse** : la clé n'apparaît dans aucune URL ;
+- **rechargement de la page** : la clé est perdue, l'indicateur repasse à
+  « non configuré » — c'est le comportement voulu.

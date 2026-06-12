@@ -70,6 +70,8 @@ export interface LLMSuccess {
   ok: true
   /** Texte assemblé à partir des deltas (ou du corps complet en non-streaming). */
   text: string
+  /** Modèle confirmé par l'API (champ `model` de la réponse), si présent. */
+  model: string | null
   usage: Usage
   totalLatencyMs: number
   /** Latence jusqu'au premier token de texte ; null en non-streaming. */
