@@ -10,8 +10,9 @@
 Outil pédagogique mono-page pour Product Owners : construire un appel LLM bloc par bloc
 sur 4 niveaux (L1 appel nu, L2 structuration, L3 skills, L4 MCP). Front statique pur,
 zéro backend, mode BYOK (clé Anthropic en mémoire uniquement). Développé ticket par
-ticket depuis `spec.md` ; état actuel : **T1 livré** (couche provider : appel direct
-Anthropic streaming/non-streaming, erreurs typées affichables, 23 tests engine).
+ticket depuis `spec.md` ; état actuel : **T2 livré** (barre d'état provider : saisie de
+clé masquée en mémoire seule, sélecteur de modèles, test de connexion avec latence et
+modèle confirmé ; l'app reste utilisable sans clé).
 
 ## 2. Stack
 
@@ -30,6 +31,12 @@ Anthropic streaming/non-streaming, erreurs typées affichables, 23 tests engine)
   latences, erreurs affichables en français). Fetch brut, pas de SDK — cf. ADR-002.
 - **Codegen** (`src/codegen/`) : fonctions pures `LLMRequest → string` (Python, curl,
   JS fetch — à venir en T4).
+- **Config** (`src/config/`) : constantes partagées — liste des modèles du sélecteur
+  (`models.ts`, Haiku 4.5 défaut + Sonnet 4.6) et URL de base Anthropic.
+- **State** (`src/state/`) : contextes React. `ProviderContext` détient la clé API
+  (mémoire uniquement, invariant n°4), le modèle choisi, le statut de connexion
+  (5 états : non configuré / non testée / test / prêt / erreur) et expose `provider`
+  + `canExecute` aux niveaux. Sans clé : mode « génération de code seule ».
 - **Fil rouge** : le verbatim client télécom, réutilisé de L1 à L4.
 
 ## 4. Décisions marquantes
