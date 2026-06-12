@@ -10,11 +10,12 @@
 Outil pédagogique mono-page pour Product Owners : construire un appel LLM bloc par bloc
 sur 4 niveaux (L1 appel nu, L2 structuration, L3 skills, L4 MCP). Front statique pur,
 zéro backend, mode BYOK (clé Anthropic en mémoire uniquement). Développé ticket par
-ticket depuis `spec.md` ; état actuel : **T4 livré** (en plus du niveau L1 complet de
-T3 : panneau « Requête » dans L1 — le JSON exact envoyé à l'API, coloré, annoté clé par
-clé au survol, mis à jour en temps réel sans exécution — et export du code équivalent
-en Python / curl / JavaScript avec bouton copier, utilisable sans clé en mode
-« génération de code seule »).
+ticket depuis `spec.md` ; état actuel : **T5 livré** (niveaux L1 et L2 opérationnels,
+panneau « Requête » T4 partout : JSON exact annoté + export Python / curl / JS. L2
+ajoute les blocs de structuration activables — system prompt, température,
+max_tokens — qui « s'allument » dans le JSON, le mode A/B en deux colonnes avec diff
+surligné, l'exécution simultanée et le ×N par colonne avec synthèses comparées, plus
+deux presets pédagogiques sur le fil rouge).
 
 ## 2. Stack
 
@@ -41,8 +42,17 @@ en Python / curl / JavaScript avec bouton copier, utilisable sans clé en mode
   construction, cf. ADR-004). `CodegenOptions.baseUrl` prépare le mode proxy (T12).
 - **Panneau requête** (`src/components/request/`) : UI partagée construite dans L1,
   réutilisée par les niveaux suivants — `RequestPanel` (onglets JSON annoté / Python /
-  curl / JavaScript), `AnnotatedJson` (JSON coloré, notes au survol dans un encart
-  fixe), `annotations.fr.ts` (notes pédagogiques par clé de premier niveau).
+  curl / JavaScript, props `title`/`diffKeys`), `AnnotatedJson` (JSON coloré, notes au
+  survol dans un encart fixe ; depuis T5 : flash « s'allume » quand une clé apparaît ou
+  change, surlignage durable des clés en diff A/B), `annotations.fr.ts` (notes
+  pédagogiques par clé de premier niveau).
+- **Galerie ×N** (`src/components/batch/`) : UI partagée depuis T5 — `BatchPanel`
+  (progression, cartes, modale) et `synthesis.ts` (heuristiques pures
+  longueurs/formats). Utilisée par L1 et par chaque colonne du mode A/B de L2.
+- **Config L2** (`src/levels/l2/config.ts`) : couche pure — blocs
+  `BlockState { enabled, value }` (la valeur survit à l'extinction), `toRequest`
+  (projection en `LLMRequest`), `diffRequestKeys`/`describeDiff` (diff au niveau wire
+  via `buildRequestBody`, cf. ADR-005). Presets A/B dans `presets.ts` (fabriques).
 - **Config** (`src/config/`) : constantes partagées — liste des modèles du sélecteur
   (`models.ts`, Haiku 4.5 défaut + Sonnet 4.6), URL de base Anthropic, et défauts des
   niveaux (`defaults.ts` : prompt fil rouge, `max_tokens` par défaut).
@@ -67,6 +77,10 @@ Journal complet dans [`decisions/`](decisions/README.md). Notables :
 - [ADR-004](decisions/ADR-004-panneau-requete-corps-unique-codegen-sans-cle.md) —
   panneau requête : `buildRequestBody` source unique de vérité (fil / panneau /
   codegen), générateurs sans clé par construction, annotations en encart fixe.
+- [ADR-005](decisions/ADR-005-niveau-l2-config-blocs-diff-wire-ab-plafond-global.md) —
+  niveau L2 : galerie ×N partagée dans `components/batch/`, config par blocs pure,
+  diff A/B au niveau wire, plafond global de 4 appels réparti entre colonnes,
+  runs L2 non-streaming.
 
 ## 5. Patterns prescriptifs
 
