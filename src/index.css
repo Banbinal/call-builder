@@ -1,10 +1,48 @@
 @import "tailwindcss";
 
+/* Design system aligné sur TableTalk (repo talkSQL, src/app.css) : on
+   redéfinit les tokens du thème Tailwind pour que les classes existantes
+   (slate-*, indigo-*) rendent la palette TableTalk — papier bleu-gris,
+   accent teal, Public Sans / IBM Plex Mono, coins plus généreux. Les
+   échelles d'état (emerald/amber/red/sky) restent celles de Tailwind. */
+@theme {
+  /* neutres — dérivés de paper #f2f5f7 / line #dfe6eb / muted #5c6b78 / ink #15212b */
+  --color-slate-50: #f2f5f7;
+  --color-slate-100: #e9eef1;
+  --color-slate-200: #dfe6eb;
+  --color-slate-300: #c9d4db;
+  --color-slate-400: #93a3af;
+  --color-slate-500: #5c6b78;
+  --color-slate-600: #46545f;
+  --color-slate-700: #33414c;
+  --color-slate-800: #22303a;
+  --color-slate-900: #15212b;
+
+  /* accent — teal TableTalk autour de #0e7c6b (accent) / #0a5d50 (accent-ink) */
+  --color-indigo-50: #e2f1ed;
+  --color-indigo-100: #d0e8e2;
+  --color-indigo-200: #b5dcd2;
+  --color-indigo-300: #8cc8ba;
+  --color-indigo-400: #4ba390;
+  --color-indigo-500: #18907c;
+  --color-indigo-600: #0e7c6b;
+  --color-indigo-700: #0a5d50;
+  --color-indigo-800: #084e43;
+  --color-indigo-900: #063f37;
+
+  --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* formes TableTalk : boutons 9px, cartes 12px */
+  --radius-md: 9px;
+  --radius-lg: 12px;
+}
+
 /* « S'allume » (T5) : flash bref d'une ligne du JSON du panneau requête quand
    un bloc apparaît ou change de valeur dans la configuration. */
 @keyframes key-flash {
   0% {
-    background-color: rgb(99 102 241 / 0.55);
+    background-color: rgb(14 124 107 / 0.45);
   }
   100% {
     background-color: transparent;
