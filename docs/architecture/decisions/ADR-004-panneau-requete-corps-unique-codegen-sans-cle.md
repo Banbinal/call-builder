@@ -69,4 +69,6 @@ code généré » tient par construction, pas par filtrage. Les annotations
 
 ## Notes de révision
 
-—
+- 2026-06-12 — la dette « source d'annotations en dur » est soldée par
+  [ADR-008](ADR-008-niveau-l4-scenario-mcp-statique-annotations-injectables.md) :
+  la source des notes d'`AnnotatedJson` est devenue une prop injectable (T8).

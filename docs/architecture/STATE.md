@@ -10,12 +10,23 @@
 Outil pédagogique mono-page pour Product Owners : construire un appel LLM bloc par bloc
 sur 4 niveaux (L1 appel nu, L2 structuration, L3 skills, L4 MCP). Front statique pur,
 zéro backend, mode BYOK (clé Anthropic en mémoire uniquement). Développé ticket par
-ticket depuis `spec.md` ; état actuel : **T5 livré** (niveaux L1 et L2 opérationnels,
+ticket depuis `spec.md` ; état actuel : **T9 livré** (niveaux L1 à L4 opérationnels,
 panneau « Requête » T4 partout : JSON exact annoté + export Python / curl / JS. L2
 ajoute les blocs de structuration activables — system prompt, température,
-max_tokens — qui « s'allument » dans le JSON, le mode A/B en deux colonnes avec diff
-surligné, l'exécution simultanée et le ×N par colonne avec synthèses comparées, plus
-deux presets pédagogiques sur le fil rouge).
+max_tokens, et depuis T6 le schéma de sortie — qui « s'allument » dans le JSON, le
+mode A/B en deux colonnes avec diff surligné, l'exécution simultanée et le ×N par
+colonne avec synthèses comparées, trois presets pédagogiques sur le fil rouge. Le
+bloc schéma a deux modes — strict via `output_config.format`, ou consigne de repli
+dans le system prompt (défaut) — avec éditeur visuel/JSON synchronisé, mode test,
+validation de chaque réponse et taux de conformité en ×N. L3 « replie » la config
+L2 dans une skill : formulaire pré-rempli — instructions depuis le system prompt,
+contrat de sortie depuis le schéma T6 —, aperçu SKILL.md en direct, linter
+pédagogique à 5 règles, export en fichier seul ou en zip `<nom>/SKILL.md`. L4
+simule les échanges MCP : scénario scripté en 5 temps rejouable pas à pas, trois
+colonnes Agent / Protocole / Tool, messages JSON-RPC réels annotés au survol,
+schéma du tool aligné sur T6. Depuis T9, L2 embarque aussi le mode chaos : un
+harness — retry sur non-conformité, fallback de modèle — démontré sur pannes
+simulées, timeline horodatée et compteur de coût).
 
 ## 2. Stack
 
@@ -36,6 +47,11 @@ deux presets pédagogiques sur le fil rouge).
   slot) pour les exécutions ×N — cf. ADR-003. Depuis T4 : `buildRequestBody` exporté —
   la même fonction construit le corps envoyé sur le fil, affiché dans le panneau
   requête et exporté par le codegen (source unique de vérité, cf. ADR-004).
+  Depuis T9 : `runHarness` (retry sur non-conformité avec violations ré-injectées
+  dans la conversation, fallback de modèle, étapes horodatées, coût en appels ;
+  validateur injecté — l'engine ne connaît pas ajv) et `createChaosProvider`
+  (décorateur de pannes simulées : corruption de la 1ʳᵉ réponse, modèle en panne) —
+  cf. ADR-009.
 - **Codegen** (`src/codegen/`) : fonctions pures `(LLMRequest, CodegenOptions?) →
   string` — Python (SDK anthropic), curl, JavaScript (fetch) — testées par snapshots.
   Les générateurs ne reçoivent jamais la clé API (placeholder `VOTRE_CLE_API` par
@@ -44,15 +60,43 @@ deux presets pédagogiques sur le fil rouge).
   réutilisée par les niveaux suivants — `RequestPanel` (onglets JSON annoté / Python /
   curl / JavaScript, props `title`/`diffKeys`), `AnnotatedJson` (JSON coloré, notes au
   survol dans un encart fixe ; depuis T5 : flash « s'allume » quand une clé apparaît ou
-  change, surlignage durable des clés en diff A/B), `annotations.fr.ts` (notes
-  pédagogiques par clé de premier niveau).
+  change, surlignage durable des clés en diff A/B ; depuis T8 : source des notes
+  injectable en prop), `annotations.fr.ts` (notes pédagogiques par clé de premier
+  niveau).
 - **Galerie ×N** (`src/components/batch/`) : UI partagée depuis T5 — `BatchPanel`
   (progression, cartes, modale) et `synthesis.ts` (heuristiques pures
   longueurs/formats). Utilisée par L1 et par chaque colonne du mode A/B de L2.
+  Depuis T6 : prop `validate` optionnelle — cartes vertes/rouges et taux de
+  conformité dans la synthèse quand un schéma est actif, L1 inchangé.
+- **Schéma de sortie** (`src/schema/`) : module pur depuis T6 — `model.ts`
+  (champs ↔ JSON Schema aller-retour, sous-ensemble v0 : un niveau d'objet,
+  enums de chaînes, rejets explicites) et `validate.ts` (validation ajv, cache de
+  compilation, violations typées en français : champ manquant, type faux, valeur
+  hors enum, champ non prévu). Réutilisable par le harness T9 — cf. ADR-006.
 - **Config L2** (`src/levels/l2/config.ts`) : couche pure — blocs
   `BlockState { enabled, value }` (la valeur survit à l'extinction), `toRequest`
   (projection en `LLMRequest`), `diffRequestKeys`/`describeDiff` (diff au niveau wire
   via `buildRequestBody`, cf. ADR-005). Presets A/B dans `presets.ts` (fabriques).
+  Depuis T6 : bloc schéma `{ strict, spec }` — strict → `output_config.format`
+  via `extra`, repli (défaut) → consigne ajoutée au system prompt (ADR-006).
+- **Simulateur MCP (L4)** (`src/levels/l4/`) : maquette interactive depuis T8 —
+  `scenario.ts` (données pures éditables : 5 temps, messages JSON-RPC MCP valides,
+  schéma de sortie du tool construit depuis le schéma T6, testé), `annotations.fr.ts`
+  (notes JSON-RPC, branchées sur le mécanisme d'annotation T4) et `index.tsx`
+  (stepper Précédent/Suivant, trois colonnes Agent / Protocole / Tool, bandeau
+  « Simulation » honnête). Aucun vrai serveur — cf. ADR-008.
+- **Mode chaos (L2)** (`src/levels/l2/ChaosPanel.tsx`) : depuis T9 — toggles de
+  pannes simulées (sortie malformée au 1ᵉʳ essai, provider down), exécution via le
+  harness sur la config A (chaîne modèle courant → autre modèle du sélecteur),
+  timeline des `HarnessStep` et compteur de coût (« N appels au lieu d'1 »).
+  Guardrails d'entrée explicitement « non simulés ici ».
+- **Skill (L3)** (`src/levels/l3/`) : trois modules purs depuis T7, miroir de
+  `l2/config.ts` — `skill.ts` (formulaire ↔ SKILL.md : kebab-case forcé,
+  pré-remplissage depuis la config L2, frontmatter YAML échappé via JSON),
+  `lint.ts` (5 règles pédagogiques, une explication par alerte) et `zip.ts`
+  (archive « store » CRC-32 écrite à la main, zéro dépendance, reproductible).
+  Le contrat de sortie est en lecture seule en L3 : il se modifie au niveau 2,
+  « Replier à nouveau » resynchronise — cf. ADR-007.
 - **Config** (`src/config/`) : constantes partagées — liste des modèles du sélecteur
   (`models.ts`, Haiku 4.5 défaut + Sonnet 4.6), URL de base Anthropic, et défauts des
   niveaux (`defaults.ts` : prompt fil rouge, `max_tokens` par défaut).
@@ -60,6 +104,9 @@ deux presets pédagogiques sur le fil rouge).
   (mémoire uniquement, invariant n°4), le modèle choisi, le statut de connexion
   (5 états : non configuré / non testée / test / prêt / erreur) et expose `provider`
   + `canExecute` aux niveaux. Sans clé : mode « génération de code seule ».
+  Depuis T7 : `L2ConfigContext` — la config L2 (colonne A) vit au-dessus des
+  onglets, L2 l'édite, L3 la « replie » dans la skill, et elle survit aux
+  changements de niveau (cf. ADR-007).
 - **Fil rouge** : le verbatim client télécom, réutilisé de L1 à L4.
 
 ## 4. Décisions marquantes
@@ -81,6 +128,22 @@ Journal complet dans [`decisions/`](decisions/README.md). Notables :
   niveau L2 : galerie ×N partagée dans `components/batch/`, config par blocs pure,
   diff A/B au niveau wire, plafond global de 4 appels réparti entre colonnes,
   runs L2 non-streaming.
+- [ADR-006](decisions/ADR-006-structured-output-double-mode-validation-ajv.md) —
+  structured output : double mode strict (`output_config.format`) / repli prompt
+  avec défaut non-strict pédagogique, validation ajv dans `src/schema/` pur,
+  prop `validate` optionnelle sur la galerie ×N.
+- [ADR-007](decisions/ADR-007-niveau-l3-contexte-partage-modules-purs-zip.md) —
+  niveau L3 : config L2 partagée via `L2ConfigContext`, skill/lint/zip en
+  modules purs dans `levels/l3/`, zip « store » sans dépendance, contrat de
+  sortie en lecture seule (le schéma reste défini au niveau 2).
+- [ADR-008](decisions/ADR-008-niveau-l4-scenario-mcp-statique-annotations-injectables.md) —
+  niveau L4 : scénario MCP en données statiques (alignement T6 par
+  construction, testé), source d'annotations injectable (dette ADR-004
+  soldée), pas de vrai serveur.
+- [ADR-009](decisions/ADR-009-mode-chaos-harness-pur-validateur-injecte-chaos-decorateur.md) —
+  mode chaos : harness pur à validateur injecté dans l'engine, pannes
+  simulées en décorateur de provider (le harness ne sait pas qu'il est
+  testé), timeline = projection des `HarnessStep`.
 
 ## 5. Patterns prescriptifs
 
@@ -88,6 +151,6 @@ Voir [`PATTERNS.md`](PATTERNS.md) — catalogue vide pour l'instant.
 
 ## 6. Dette technique connue
 
-- **Source d'annotations en dur** : `AnnotatedJson` importe directement
-  `annotations.fr.ts`. T8 (simulateur MCP) réutilisera le mécanisme avec d'autres notes
-  (JSON-RPC) — il faudra alors passer la source d'annotations en prop (cf. ADR-004).
+- **Formulaire L3 en état local** : la skill en cours d'édition (exemples saisis,
+  description retouchée) est perdue au changement d'onglet — seule la config L2 est
+  partagée. À remonter en contexte si gênant en atelier (cf. ADR-007).

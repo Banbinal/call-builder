@@ -11,3 +11,7 @@
 | 003 | [Niveau L1 — runBatch pur, synthèse côté niveau, ×N non-streaming](ADR-003-niveau-l1-runbatch-pur-xn-non-streaming.md) | acceptée | 2026-06-12 |
 | 004 | [Panneau requête T4 — corps de requête source unique, codegen sans clé par construction](ADR-004-panneau-requete-corps-unique-codegen-sans-cle.md) | acceptée | 2026-06-12 |
 | 005 | [Niveau L2 — config par blocs, diff au niveau wire, A/B sous plafond global](ADR-005-niveau-l2-config-blocs-diff-wire-ab-plafond-global.md) | acceptée | 2026-06-12 |
+| 006 | [Structured output T6 — double mode strict/repli, validation ajv dans un module pur](ADR-006-structured-output-double-mode-validation-ajv.md) | acceptée | 2026-06-12 |
+| 007 | [Niveau L3 — config L2 en contexte partagé, skill/lint/zip en modules purs, export zip sans dépendance](ADR-007-niveau-l3-contexte-partage-modules-purs-zip.md) | acceptée | 2026-06-12 |
+| 008 | [Niveau L4 — scénario MCP scripté en données statiques, annotations injectables, schéma du tool aligné T6 par construction](ADR-008-niveau-l4-scenario-mcp-statique-annotations-injectables.md) | acceptée | 2026-06-12 |
+| 009 | [Mode chaos — harness pur à validateur injecté, pannes simulées en décorateur de provider](ADR-009-mode-chaos-harness-pur-validateur-injecte-chaos-decorateur.md) | acceptée | 2026-06-12 |
