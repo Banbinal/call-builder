@@ -127,3 +127,77 @@ Sur l'onglet **L2 — Structurer l'appel** :
 4. **Preset « Sans / avec system prompt »** — exécuter A et B : la réponse B
    (cadrée par le system prompt) est nettement plus courte et se termine par
    une action recommandée.
+
+## Structured output : choix d'implémentation (T6)
+
+Le bloc « Schéma de sortie » de L2 injecte le schéma de deux façons, au choix
+(toggle « Mode strict ») :
+
+- **Mode strict** — le schéma part dans `output_config.format`
+  (`type: "json_schema"`), la fonctionnalité *structured outputs* de l'API
+  Anthropic (GA sur Haiku 4.5 et Sonnet 4.6, sans header beta ; l'ancien
+  paramètre `output_format` est déprécié). La conformité est **garantie par
+  l'API**.
+- **Mode repli (défaut)** — le schéma est **demandé** dans le system prompt
+  (consigne « réponds uniquement avec un objet JSON conforme à ce schéma »),
+  ajouté après le system prompt utilisateur s'il est actif. Le modèle peut
+  dévier — c'est voulu.
+
+Le défaut est le mode repli pour une raison pédagogique : le taux de
+conformité du ×N (« 17/20 conformes ») n'a quelque chose à montrer que si la
+conformité n'est pas garantie. Le parcours attendu du workshop : constater la
+déviation en repli, passer en strict, constater le 20/20 — c'est la différence
+entre *demander* et *contraindre*. Le preset A/B « Schéma : consigne vs
+strict » fait cette comparaison en deux clics.
+
+La validation à réception (lib **ajv**, module pur `src/schema/`) tourne dans
+les deux modes : en strict elle confirme la garantie, en repli elle mesure la
+déviation. Une réponse non parsable en JSON (texte autour, bloc de code) est
+comptée non conforme : le contrat demandait du JSON seul.
+
+## Test manuel du structured output (T6)
+
+Sur l'onglet **L2**, sans clé (sauf étape 4) :
+
+1. **Le bloc « s'allume »** — cocher « Schéma de sortie » : la consigne
+   apparaît dans `system` (mode repli). Cocher « Mode strict » : `system`
+   disparaît et `output_config` s'allume dans le JSON, avec sa note au survol.
+2. **Synchronisation des deux éditeurs** — ajouter un champ dans l'éditeur
+   visuel puis ouvrir « JSON brut » : il y figure. Modifier le JSON brut
+   (renommer un champ, ajouter une valeur d'enum) puis revenir au visuel :
+   la modification y est. Un JSON hors sous-ensemble (objet imbriqué) affiche
+   une erreur explicite sans casser l'éditeur.
+3. **Mode test** — ouvrir « Mode test — altérer une réponse à la main » :
+   l'exemple pré-rempli est vert. Supprimer un champ, mettre un nombre dans
+   `irritant`, mettre `gravite: "haute"` : chaque violation est listée
+   précisément (champ manquant, type faux, valeur hors enum).
+4. **Taux de conformité** (clé valide requise) — preset « Schéma : consigne
+   vs strict », « Exécuter ×20 sur A et B » : cartes vertes/rouges, et les
+   synthèses affichent les deux taux — B (strict) doit être à 20/20.
+
+## Test manuel du niveau 3 (T7)
+
+Sur l'onglet **L3 — Skills**, sans clé (tout fonctionne hors exécution) :
+
+1. **Le repli** — sur L2, activer le system prompt et le modifier, puis passer
+   sur L3 : la carte « Votre configuration du niveau 2 » liste les blocs
+   (actifs en indigo). Cliquer « Replier dans une skill ↓ » : la carte se
+   condense et le formulaire pré-rempli se déplie — nom `analyse-verbatim`,
+   instructions reprenant le system prompt L2, contrat de sortie reprenant le
+   schéma T6, un exemple et un contre-exemple sur le fil rouge.
+2. **Le linter** — le formulaire pré-rempli est sans alerte. Déclencher chaque
+   règle : nom avec majuscules ou espaces (le champ force le kebab-case à la
+   saisie — coller `Analyse Verbatim` donne `analyse-verbatim`), description
+   raccourcie sous 80 caractères, description sans guillemets ni « quand »,
+   suppression de tous les exemples, puis du seul contre-exemple. Chaque
+   alerte affiche son explication d'une phrase.
+3. **L'aperçu et l'export** — toute modification du formulaire met à jour
+   l'aperçu immédiatement. « Télécharger SKILL.md » donne le fichier seul ;
+   « Télécharger le .zip » donne `analyse-verbatim.zip` contenant
+   `analyse-verbatim/SKILL.md` (archive sans compression, générée sans
+   dépendance — lisible par tout extracteur).
+4. **Skill utilisable telle quelle dans Claude Code** — dézipper dans
+   `~/.claude/skills/`, ouvrir une session Claude Code et demander
+   « analyse ce verbatim : "…" » : la skill se déclenche (frontmatter
+   `name`/`description` conforme) et la réponse respecte le contrat JSON du
+   schéma T6. Vérifié avec le SKILL.md par défaut du fil rouge.

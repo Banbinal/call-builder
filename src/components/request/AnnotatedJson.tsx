@@ -3,22 +3,26 @@
 // (plutôt qu'une infobulle flottante, qui serait rognée par le défilement).
 // Depuis T5 : une ligne « s'allume » (flash) quand sa clé apparaît ou change
 // de valeur, et `diffKeys` surligne durablement les clés qui diffèrent entre
-// les colonnes A et B.
+// les colonnes A et B. Depuis T8 : la source des notes est injectable —
+// le simulateur MCP (L4) réutilise le composant avec des notes JSON-RPC.
 
 import { useRef, useState, type ReactNode } from 'react'
-import { annotationFor } from './annotations.fr'
+import { annotationFor, type KeyAnnotation } from './annotations.fr'
 
 export function AnnotatedJson({
   body,
   diffKeys,
+  annotations = annotationFor,
 }: {
   body: Record<string, unknown>
   /** Clés de premier niveau à surligner durablement (diff A/B, T5). */
   diffKeys?: ReadonlySet<string>
+  /** Source des notes pédagogiques — par défaut, celles du corps /v1/messages. */
+  annotations?: (key: string) => KeyAnnotation
 }) {
   const [hoveredKey, setHoveredKey] = useState<string | null>(null)
   const entries = Object.entries(body)
-  const annotation = hoveredKey !== null ? annotationFor(hoveredKey) : null
+  const annotation = hoveredKey !== null ? annotations(hoveredKey) : null
   const versions = useKeyVersions(body)
 
   return (

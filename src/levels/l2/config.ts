@@ -4,6 +4,12 @@
 
 import { DEFAULT_MAX_TOKENS, FIL_ROUGE_PROMPT } from '../../config/defaults'
 import { buildRequestBody, type LLMRequest } from '../../engine'
+import {
+  defaultSchemaSpec,
+  schemaPromptInstruction,
+  toJsonSchema,
+  type SchemaSpec,
+} from '../../schema/model'
 
 /** Un bloc activable : la valeur est conservée même quand le bloc est éteint. */
 export interface BlockState<T> {
@@ -11,11 +17,23 @@ export interface BlockState<T> {
   value: T
 }
 
+/**
+ * Bloc schéma de sortie (T6). `strict: true` impose le schéma via l'API
+ * (`output_config.format`, conformité garantie) ; `strict: false` le demande
+ * dans un system prompt de repli — c'est l'écart entre les deux que le taux
+ * de conformité du ×N rend visible.
+ */
+export interface SchemaBlock {
+  strict: boolean
+  spec: SchemaSpec
+}
+
 export interface L2Config {
   prompt: string
   system: BlockState<string>
   temperature: BlockState<number>
   maxTokens: BlockState<number>
+  schema: BlockState<SchemaBlock>
 }
 
 /** System prompt proposé à l'activation du bloc (modifiable ensuite). */
@@ -31,6 +49,9 @@ export function defaultL2Config(): L2Config {
     // 1 est le défaut implicite de l'API : activer le bloc le rend visible.
     temperature: { enabled: false, value: 1 },
     maxTokens: { enabled: false, value: DEFAULT_MAX_TOKENS },
+    // Non-strict par défaut : la consigne est demandée, pas imposée — le taux
+    // de conformité du ×N a alors quelque chose à montrer.
+    schema: { enabled: false, value: { strict: false, spec: defaultSchemaSpec() } },
   }
 }
 
@@ -38,6 +59,8 @@ export function defaultL2Config(): L2Config {
  * Projette la configuration en LLMRequest : un bloc éteint est absent de la
  * requête (le JSON du panneau T4 « s'allume » à l'activation), sauf
  * max_tokens, obligatoire pour l'API — éteint, il retombe sur le défaut.
+ * Le bloc schéma s'injecte selon son mode : `output_config` (strict) ou
+ * consigne ajoutée au system prompt (repli).
  */
 export function toRequest(config: L2Config, model: string): LLMRequest {
   const request: LLMRequest = {
@@ -49,6 +72,21 @@ export function toRequest(config: L2Config, model: string): LLMRequest {
   }
   if (config.system.enabled) request.system = config.system.value
   if (config.temperature.enabled) request.temperature = config.temperature.value
+  if (config.schema.enabled) {
+    const { strict, spec } = config.schema.value
+    if (strict) {
+      request.extra = {
+        output_config: {
+          format: { type: 'json_schema', schema: toJsonSchema(spec) },
+        },
+      }
+    } else {
+      const instruction = schemaPromptInstruction(spec)
+      request.system = request.system
+        ? `${request.system}\n\n${instruction}`
+        : instruction
+    }
+  }
   return request
 }
 

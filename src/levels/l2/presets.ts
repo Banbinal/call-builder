@@ -40,4 +40,19 @@ export const AB_PRESETS: ABPreset[] = [
       return { a, b }
     },
   },
+  {
+    id: 'schema',
+    label: 'Schéma : consigne vs strict',
+    description:
+      'Même schéma de sortie : A le demande dans le system prompt, B l’impose ' +
+      'via l’API (mode strict) — en ×20, comparez les taux de conformité.',
+    make: () => {
+      const a = defaultL2Config()
+      a.schema.enabled = true
+      const b = defaultL2Config()
+      b.schema.enabled = true
+      b.schema.value.strict = true
+      return { a, b }
+    },
+  },
 ]

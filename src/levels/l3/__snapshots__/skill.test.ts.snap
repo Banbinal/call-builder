@@ -1,0 +1,94 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateSkillMd > génère le SKILL.md complet du fil rouge (snapshot) 1`] = `
+"---
+name: analyse-verbatim
+description: "À utiliser quand l’utilisateur demande d’analyser un verbatim client ou un retour client — « analyse ce verbatim », « qualifie cette réclamation » — pour produire la fiche structurée irritant / gravité / thème."
+---
+
+# analyse-verbatim
+
+## Instructions
+
+Tu es analyste relation client chez un opérateur télécom. Réponds en 3 phrases maximum, sur un ton factuel, et termine par une action recommandée.
+
+## Contrat de sortie
+
+Réponds uniquement avec un objet JSON conforme à ce schéma, sans aucun
+texte autour ni bloc de code :
+
+\`\`\`json
+{
+  "type": "object",
+  "properties": {
+    "irritant": {
+      "type": "string",
+      "description": "Le problème principal exprimé par le client, en une phrase"
+    },
+    "gravite": {
+      "type": "string",
+      "enum": [
+        "faible",
+        "moyenne",
+        "critique"
+      ],
+      "description": "Niveau de gravité de l’irritant"
+    },
+    "theme": {
+      "type": "string",
+      "description": "Le thème métier concerné (ex. service client, facturation)"
+    },
+    "verbatim_resume": {
+      "type": "string",
+      "description": "Le verbatim résumé en une phrase neutre"
+    }
+  },
+  "required": [
+    "irritant",
+    "gravite",
+    "theme",
+    "verbatim_resume"
+  ],
+  "additionalProperties": false
+}
+\`\`\`
+
+## Exemples
+
+### Exemple
+
+**Entrée :**
+
+« Impossible de joindre le service client depuis 3 jours, le chat coupe à chaque fois, je songe à résilier. »
+
+**Sortie attendue :**
+
+\`\`\`json
+{
+  "irritant": "Service client injoignable malgré des tentatives répétées",
+  "gravite": "critique",
+  "theme": "service client",
+  "verbatim_resume": "Le client ne parvient pas à joindre le service client depuis trois jours et envisage de résilier."
+}
+\`\`\`
+
+### Contre-exemple
+
+**Entrée :**
+
+« L’appli plante de temps en temps mais bon, ça va, je la relance. »
+
+**Sortie à ne pas produire :**
+
+\`\`\`json
+{
+  "irritant": "L’application mobile plante",
+  "gravite": "critique",
+  "theme": "application mobile",
+  "verbatim_resume": "L’application du client plante régulièrement."
+}
+\`\`\`
+
+_Pourquoi :_ La gêne est ponctuelle et le client la minimise lui-même : la gravité est « faible », pas « critique ».
+"
+`;

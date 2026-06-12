@@ -25,6 +25,7 @@ describe('toRequest', () => {
 
   it('chaque bloc activé apparaît dans la requête avec sa valeur', () => {
     const config: L2Config = {
+      ...defaultL2Config(),
       prompt: 'Question test',
       system: { enabled: true, value: 'Réponds en un mot.' },
       temperature: { enabled: true, value: 0.3 },
@@ -43,6 +44,40 @@ describe('toRequest', () => {
     const config = defaultL2Config()
     config.temperature = { enabled: false, value: 0.2 }
     expect('temperature' in toRequest(config, MODEL)).toBe(false)
+  })
+
+  it('schéma strict : output_config.format dans extra, system intact', () => {
+    const config = defaultL2Config()
+    config.schema.enabled = true
+    config.schema.value.strict = true
+    const request = toRequest(config, MODEL)
+    expect('system' in request).toBe(false)
+    const outputConfig = request.extra?.output_config as {
+      format: { type: string; schema: Record<string, unknown> }
+    }
+    expect(outputConfig.format.type).toBe('json_schema')
+    expect(outputConfig.format.schema.additionalProperties).toBe(false)
+    expect(Object.keys(outputConfig.format.schema.properties as object)).toEqual(
+      ['irritant', 'gravite', 'theme', 'verbatim_resume'],
+    )
+  })
+
+  it('schéma non-strict : consigne de repli dans system, pas d’output_config', () => {
+    const config = defaultL2Config()
+    config.schema.enabled = true
+    const request = toRequest(config, MODEL)
+    expect(request.extra).toBeUndefined()
+    expect(request.system).toContain('objet JSON conforme')
+    expect(request.system).toContain('"gravite"')
+  })
+
+  it('schéma non-strict + system actif : consigne ajoutée après le system', () => {
+    const config = defaultL2Config()
+    config.system.enabled = true
+    config.schema.enabled = true
+    const request = toRequest(config, MODEL)
+    expect(request.system!.startsWith(config.system.value)).toBe(true)
+    expect(request.system).toContain('objet JSON conforme')
   })
 })
 
@@ -107,6 +142,19 @@ describe('presets A/B', () => {
     expect([...diffRequestKeys(requestA, requestB)]).toEqual(['temperature'])
     expect(requestA.temperature).toBe(0)
     expect(requestB.temperature).toBe(1)
+  })
+
+  it('« schéma : consigne vs strict » : le diff est system + output_config', () => {
+    const preset = AB_PRESETS.find((p) => p.id === 'schema')!
+    const { a, b } = preset.make()
+    const requestA = toRequest(a, MODEL)
+    const requestB = toRequest(b, MODEL)
+    expect([...diffRequestKeys(requestA, requestB)].sort()).toEqual([
+      'output_config',
+      'system',
+    ])
+    expect(requestA.system).toContain('objet JSON conforme')
+    expect(requestB.extra?.output_config).toBeDefined()
   })
 
   it('make() rend des objets frais — pas de partage entre colonnes', () => {

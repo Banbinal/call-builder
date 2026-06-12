@@ -6,6 +6,7 @@
 import { useId } from 'react'
 import { DEFAULT_MAX_TOKENS } from '../../config/defaults'
 import type { L2Config } from './config'
+import { SchemaEditor } from './SchemaEditor'
 
 /** Clé wire correspondant à chaque bloc, pour aligner le surlignage du diff. */
 const WIRE_KEYS = {
@@ -13,6 +14,8 @@ const WIRE_KEYS = {
   system: 'system',
   temperature: 'temperature',
   maxTokens: 'max_tokens',
+  // Le bloc schéma part en `output_config` en mode strict, dans `system` en
+  // mode repli — la clé de surlignage suit le mode.
 } as const
 
 export function ConfigPanel({
@@ -31,6 +34,8 @@ export function ConfigPanel({
   const systemId = useId()
   const temperatureId = useId()
   const maxTokensId = useId()
+  const schemaId = useId()
+  const strictId = useId()
 
   const rowClass = (wireKey: string) =>
     `rounded-md border p-3 transition-colors ${
@@ -202,6 +207,80 @@ export function ConfigPanel({
             }
             className="mt-2 w-32 rounded-md border border-slate-300 p-2 font-mono text-sm focus:border-indigo-500 focus:outline-none disabled:bg-slate-50"
           />
+        )}
+      </div>
+
+      <div
+        className={rowClass(
+          config.schema.value.strict ? 'output_config' : 'system',
+        )}
+      >
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id={schemaId}
+            checked={config.schema.enabled}
+            disabled={disabled}
+            onChange={(e) =>
+              onChange({
+                ...config,
+                schema: { ...config.schema, enabled: e.target.checked },
+              })
+            }
+            className="h-4 w-4 accent-indigo-600"
+          />
+          <label
+            htmlFor={schemaId}
+            className="text-sm font-medium text-slate-700"
+          >
+            Schéma de sortie
+          </label>
+          <span className="text-xs text-slate-400">
+            le contrat de sortie — du texte libre au JSON exploitable
+          </span>
+        </div>
+        {config.schema.enabled && (
+          <>
+            <div className="mt-2 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id={strictId}
+                checked={config.schema.value.strict}
+                disabled={disabled}
+                onChange={(e) =>
+                  onChange({
+                    ...config,
+                    schema: {
+                      ...config.schema,
+                      value: { ...config.schema.value, strict: e.target.checked },
+                    },
+                  })
+                }
+                className="h-4 w-4 accent-indigo-600"
+              />
+              <label htmlFor={strictId} className="text-sm text-slate-700">
+                Mode strict
+              </label>
+              <span className="text-xs text-slate-400">
+                {config.schema.value.strict
+                  ? 'le schéma est imposé par l’API (output_config) — conformité garantie'
+                  : 'le schéma est demandé dans le system prompt — le modèle peut dévier'}
+              </span>
+            </div>
+            <SchemaEditor
+              spec={config.schema.value.spec}
+              disabled={disabled}
+              onChange={(spec) =>
+                onChange({
+                  ...config,
+                  schema: {
+                    ...config.schema,
+                    value: { ...config.schema.value, spec },
+                  },
+                })
+              }
+            />
+          </>
         )}
       </div>
     </div>

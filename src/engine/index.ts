@@ -14,5 +14,14 @@ export {
 export type { CallOptions, Provider, ProviderDeps } from './provider'
 export { runBatch } from './batch'
 export type { BatchOptions } from './batch'
+export { buildRetryMessage, runHarness } from './harness'
+export type {
+  HarnessOptions,
+  HarnessOutcome,
+  HarnessStep,
+  HarnessValidator,
+} from './harness'
+export { createChaosProvider, MALFORMED_PREFIX } from './chaos'
+export type { ChaosOptions } from './chaos'
 export { createSSEParser } from './sse'
 export type { RawSSEMessage, SSEParser } from './sse'

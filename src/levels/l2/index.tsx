@@ -7,9 +7,14 @@
 import { useId, useMemo, useState } from 'react'
 import { BatchPanel, type BatchState } from '../../components/batch/BatchPanel'
 import { RequestPanel } from '../../components/request/RequestPanel'
+import { ValidationCard } from '../../components/validation/ValidationCard'
 import { runBatch, type LLMResult } from '../../engine'
+import { toJsonSchema } from '../../schema/model'
+import { validateResponse, type ValidationResult } from '../../schema/validate'
+import { useL2Config } from '../../state/L2ConfigContext'
 import { useProvider } from '../../state/ProviderContext'
-import { defaultL2Config, describeDiff, toRequest, type L2Config } from './config'
+import { ChaosPanel } from './ChaosPanel'
+import { describeDiff, toRequest, type L2Config } from './config'
 import { ConfigPanel } from './ConfigPanel'
 import { AB_PRESETS } from './presets'
 
@@ -25,11 +30,26 @@ interface ColumnState {
 
 const EMPTY_COLUMN: ColumnState = { result: null, batch: null }
 
+/**
+ * Validateur de conformité d'une colonne (T6) : présent seulement quand le
+ * bloc schéma est actif. La validation tourne dans les deux modes — en strict
+ * elle confirme la garantie de l'API, en repli elle mesure la déviation.
+ */
+function makeValidator(
+  config: L2Config | null,
+): ((text: string) => ValidationResult) | undefined {
+  if (!config?.schema.enabled) return undefined
+  const schema = toJsonSchema(config.schema.value.spec)
+  return (text) => validateResponse(text, schema)
+}
+
 export function L2() {
   const { provider, model, canExecute, executeDisabledReason } = useProvider()
   const batchSizeId = useId()
 
-  const [configA, setConfigA] = useState<L2Config>(defaultL2Config)
+  // La colonne A vit dans un contexte partagé : elle survit aux changements
+  // d'onglet et le niveau 3 la « replie » dans une skill (T7).
+  const { config: configA, setConfig: setConfigA } = useL2Config()
   // configB non-null = mode A/B actif.
   const [configB, setConfigB] = useState<L2Config | null>(null)
   const [columnA, setColumnA] = useState<ColumnState>(EMPTY_COLUMN)
@@ -51,6 +71,8 @@ export function L2() {
     () => new Set(diffEntries.map((d) => d.key)),
     [diffEntries],
   )
+  const validateA = useMemo(() => makeValidator(configA), [configA])
+  const validateB = useMemo(() => makeValidator(configB), [configB])
 
   const busy =
     runningSingles ||
@@ -261,6 +283,7 @@ export function L2() {
           column={columnA}
           busy={busy}
           running={runningSingles}
+          validate={validateA}
         />
         {configB && requestB && (
           <Column
@@ -272,9 +295,13 @@ export function L2() {
             column={columnB}
             busy={busy}
             running={runningSingles}
+            validate={validateB}
           />
         )}
       </div>
+
+      {/* T9 : le harness démontré sur la configuration A. */}
+      <ChaosPanel />
     </div>
   )
 }
@@ -288,6 +315,7 @@ function Column({
   column,
   busy,
   running,
+  validate,
 }: {
   label: string | null
   config: L2Config
@@ -297,6 +325,7 @@ function Column({
   column: ColumnState
   busy: boolean
   running: boolean
+  validate?: (text: string) => ValidationResult
 }) {
   return (
     <div className="space-y-4">
@@ -330,6 +359,11 @@ function Column({
               <div className="mt-2 whitespace-pre-wrap rounded-md bg-slate-50 p-3 text-sm leading-relaxed text-slate-800">
                 {column.result.text}
               </div>
+              {validate && (
+                <div className="mt-3">
+                  <ValidationCard result={validate(column.result.text)} />
+                </div>
+              )}
               <p className="mt-3 text-sm text-slate-600">
                 Latence :{' '}
                 <strong>{Math.round(column.result.totalLatencyMs)} ms</strong> ·
@@ -353,7 +387,9 @@ function Column({
           )}
         </section>
       )}
-      {column.batch !== null && <BatchPanel batch={column.batch} />}
+      {column.batch !== null && (
+        <BatchPanel batch={column.batch} validate={validate} />
+      )}
     </div>
   )
 }

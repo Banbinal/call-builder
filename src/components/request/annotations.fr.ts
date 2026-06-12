@@ -54,12 +54,13 @@ export const REQUEST_ANNOTATIONS: Record<string, KeyAnnotation> = {
       'd\'attendre la fin. Indispensable pour afficher le texte qui ' +
       's\'assemble en direct.',
   },
-  output_format: {
-    title: 'output_format — le contrat de sortie',
+  output_config: {
+    title: 'output_config — le contrat de sortie',
     note:
       'Impose au modèle une structure de réponse précise (un schéma JSON) au ' +
-      'lieu d\'un texte libre. C\'est ce qui rend la sortie exploitable par un ' +
-      'programme — le pivot du niveau 2.',
+      'lieu d\'un texte libre : l\'API garantit la conformité. C\'est ce qui ' +
+      'rend la sortie exploitable par un programme — le pivot du niveau 2. ' +
+      'Sans ce bloc, le schéma ne peut être que demandé dans le system prompt.',
   },
   tools: {
     title: 'tools — les outils à disposition',

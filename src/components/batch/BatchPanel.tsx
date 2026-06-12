@@ -2,9 +2,13 @@
 // cartes (une par run) et ligne de synthèse longueurs/formats — c'est ici que
 // la stochasticité se constate. Un échec sur un run reste local à sa carte.
 // Utilisée par L1 (pleine largeur) et par chaque colonne du mode A/B de L2.
+// Depuis T6 : `validate` (optionnel) colore chaque carte selon sa conformité
+// au schéma de sortie et ajoute le taux de conformité à la synthèse.
 
 import { useEffect, useState } from 'react'
 import type { LLMResult, LLMSuccess } from '../../engine'
+import type { ValidationResult } from '../../schema/validate'
+import { ValidationCard } from '../validation/ValidationCard'
 import { detectFormat, formatLabel, summarizeTexts } from './synthesis'
 
 export interface BatchState {
@@ -16,7 +20,14 @@ export interface BatchState {
 
 const EXCERPT_LENGTH = 160
 
-export function BatchPanel({ batch }: { batch: BatchState }) {
+export function BatchPanel({
+  batch,
+  validate,
+}: {
+  batch: BatchState
+  /** Validation contre le schéma actif (T6) — absent quand pas de schéma. */
+  validate?: (text: string) => ValidationResult
+}) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
   useEffect(() => {
@@ -35,6 +46,9 @@ export function BatchPanel({ batch }: { batch: BatchState }) {
   const done = !batch.running && batch.completed === batch.total
   const synthesis = done ? summarizeTexts(successes.map((s) => s.text)) : null
   const openResult = openIndex !== null ? batch.results[openIndex] : null
+  const conformCount = validate
+    ? successes.filter((s) => validate(s.text).status === 'valid').length
+    : null
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4">
@@ -68,6 +82,9 @@ export function BatchPanel({ batch }: { batch: BatchState }) {
             <RunCard
               result={result}
               index={index}
+              validation={
+                validate && result?.ok ? validate(result.text) : undefined
+              }
               onOpen={() => setOpenIndex(index)}
             />
           </li>
@@ -85,6 +102,22 @@ export function BatchPanel({ batch }: { batch: BatchState }) {
             {synthesis.distinctFormats > 1 ? 's' : ''}
           </strong>{' '}
           ({synthesis.formatLabels.join(', ')})
+          {conformCount !== null && (
+            <span
+              className={
+                conformCount === successes.length
+                  ? 'text-emerald-700'
+                  : 'text-amber-700'
+              }
+            >
+              {' '}
+              —{' '}
+              <strong>
+                {conformCount}/{successes.length} conforme
+                {conformCount > 1 ? 's' : ''} au schéma
+              </strong>
+            </span>
+          )}
           {failures > 0 && (
             <span className="text-red-600">
               {' '}
@@ -125,6 +158,11 @@ export function BatchPanel({ batch }: { batch: BatchState }) {
                 Fermer
               </button>
             </div>
+            {validate && (
+              <div className="mt-3">
+                <ValidationCard result={validate(openResult.text)} />
+              </div>
+            )}
             <pre className="mt-4 whitespace-pre-wrap font-sans text-sm leading-relaxed text-slate-800">
               {openResult.text}
             </pre>
@@ -138,10 +176,13 @@ export function BatchPanel({ batch }: { batch: BatchState }) {
 function RunCard({
   result,
   index,
+  validation,
   onOpen,
 }: {
   result: LLMResult | null
   index: number
+  /** Verdict de conformité au schéma (T6) — undefined sans schéma actif. */
+  validation?: ValidationResult
   onOpen: () => void
 }) {
   if (result === null) {
@@ -168,17 +209,30 @@ function RunCard({
     result.text.length > EXCERPT_LENGTH
       ? result.text.slice(0, EXCERPT_LENGTH) + '…'
       : result.text
+  // Carte verte si conforme au schéma, rouge sinon — neutre sans schéma.
+  const borderClass =
+    validation === undefined
+      ? 'border-slate-200'
+      : validation.status === 'valid'
+        ? 'border-emerald-300 bg-emerald-50/40'
+        : 'border-red-300 bg-red-50/40'
   return (
     <button
       type="button"
       onClick={onOpen}
       title="Voir la réponse complète"
-      className="h-full w-full rounded-md border border-slate-200 bg-white p-3 text-left transition-colors hover:border-indigo-400"
+      className={`h-full w-full rounded-md border bg-white p-3 text-left transition-colors hover:border-indigo-400 ${borderClass}`}
     >
       <p className="text-xs leading-snug text-slate-700">{excerpt}</p>
       <p className="mt-2 text-[11px] text-slate-400">
         {result.text.length} caractères · {Math.round(result.totalLatencyMs)} ms ·{' '}
         {formatLabel(detectFormat(result.text))}
+        {validation !== undefined &&
+          (validation.status === 'valid' ? (
+            <span className="font-medium text-emerald-600"> · ✓ conforme</span>
+          ) : (
+            <span className="font-medium text-red-600"> · ✗ non conforme</span>
+          ))}
       </p>
     </button>
   )
