@@ -27,10 +27,16 @@ const TABS: Array<{ id: TabId; label: string }> = [
 export function RequestPanel({
   request,
   baseUrl = ANTHROPIC_BASE_URL,
+  diffKeys,
+  title = 'Requête',
 }: {
   request: LLMRequest
   /** Changera en mode proxy (T12) ; l'URL affichée et le code suivent. */
   baseUrl?: string
+  /** Clés de premier niveau à surligner (diff A/B, T5). */
+  diffKeys?: ReadonlySet<string>
+  /** Titre de la section (« Requête A » / « Requête B » en mode A/B). */
+  title?: string
 }) {
   const [tab, setTab] = useState<TabId>('json')
 
@@ -47,7 +53,7 @@ export function RequestPanel({
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="text-sm font-semibold text-slate-700">Requête</h2>
+        <h2 className="text-sm font-semibold text-slate-700">{title}</h2>
         <p className="font-mono text-xs text-slate-400">
           POST {baseUrl}/v1/messages
         </p>
@@ -82,7 +88,7 @@ export function RequestPanel({
 
       <div className="mt-3">
         {tab === 'json' ? (
-          <AnnotatedJson body={body} />
+          <AnnotatedJson body={body} diffKeys={diffKeys} />
         ) : (
           <CodeBlock code={code[tab]} />
         )}

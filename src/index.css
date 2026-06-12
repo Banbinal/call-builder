@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+/* « S'allume » (T5) : flash bref d'une ligne du JSON du panneau requête quand
+   un bloc apparaît ou change de valeur dans la configuration. */
+@keyframes key-flash {
+  0% {
+    background-color: rgb(99 102 241 / 0.55);
+  }
+  100% {
+    background-color: transparent;
+  }
+}

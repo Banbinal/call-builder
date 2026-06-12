@@ -1,14 +1,25 @@
 // Rendu JSON coloré et annoté (T4) : chaque clé de premier niveau est
 // survolable et affiche sa note pédagogique dans l'encart sous le JSON
 // (plutôt qu'une infobulle flottante, qui serait rognée par le défilement).
+// Depuis T5 : une ligne « s'allume » (flash) quand sa clé apparaît ou change
+// de valeur, et `diffKeys` surligne durablement les clés qui diffèrent entre
+// les colonnes A et B.
 
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { annotationFor } from './annotations.fr'
 
-export function AnnotatedJson({ body }: { body: Record<string, unknown> }) {
+export function AnnotatedJson({
+  body,
+  diffKeys,
+}: {
+  body: Record<string, unknown>
+  /** Clés de premier niveau à surligner durablement (diff A/B, T5). */
+  diffKeys?: ReadonlySet<string>
+}) {
   const [hoveredKey, setHoveredKey] = useState<string | null>(null)
   const entries = Object.entries(body)
   const annotation = hoveredKey !== null ? annotationFor(hoveredKey) : null
+  const versions = useKeyVersions(body)
 
   return (
     <div>
@@ -16,11 +27,21 @@ export function AnnotatedJson({ body }: { body: Record<string, unknown> }) {
         <span className="text-slate-500">{'{'}</span>
         {entries.map(([key, value], i) => (
           <span
-            key={key}
+            // Changer de version remonte le span : l'animation flash rejoue.
+            key={`${key}:${versions.get(key) ?? 0}`}
             onMouseEnter={() => setHoveredKey(key)}
             onMouseLeave={() => setHoveredKey(null)}
+            style={
+              (versions.get(key) ?? 0) > 0
+                ? { animation: 'key-flash 1.2s ease-out' }
+                : undefined
+            }
             className={`block cursor-help rounded transition-colors ${
-              hoveredKey === key ? 'bg-slate-700/60' : ''
+              hoveredKey === key
+                ? 'bg-slate-700/60'
+                : diffKeys?.has(key)
+                  ? 'bg-amber-400/15'
+                  : ''
             }`}
           >
             {'  '}
@@ -51,6 +72,38 @@ export function AnnotatedJson({ body }: { body: Record<string, unknown> }) {
       </div>
     </div>
   )
+}
+
+/**
+ * Numéro de version par clé de premier niveau : incrémenté quand la clé
+ * apparaît ou que sa valeur change (comparaison sérialisée). Version 0 au
+ * premier rendu du composant — pas de flash à l'ouverture du panneau.
+ */
+function useKeyVersions(body: Record<string, unknown>): Map<string, number> {
+  const serialized = useRef<Map<string, string>>(new Map())
+  const versions = useRef<Map<string, number>>(new Map())
+  const first = serialized.current.size === 0 && versions.current.size === 0
+
+  const seen = new Set<string>()
+  for (const [key, value] of Object.entries(body)) {
+    seen.add(key)
+    const json = JSON.stringify(value)
+    if (serialized.current.get(key) !== json) {
+      serialized.current.set(key, json)
+      if (!first) {
+        versions.current.set(key, (versions.current.get(key) ?? 0) + 1)
+      } else {
+        versions.current.set(key, 0)
+      }
+    }
+  }
+  for (const key of [...serialized.current.keys()]) {
+    if (!seen.has(key)) {
+      serialized.current.delete(key)
+      versions.current.delete(key)
+    }
+  }
+  return versions.current
 }
 
 /** Valeur JSON colorée, indentée comme JSON.stringify(…, null, 2). */

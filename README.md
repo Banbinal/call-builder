@@ -108,3 +108,22 @@ Sur l'onglet **L1**, sans clé configurée (le panneau fonctionne en mode
 4. **Aucune clé réelle dans le code** — coller une clé valide dans la barre
    d'état puis rouvrir les onglets de code : ils affichent toujours
    `VOTRE_CLE_API` (les générateurs ne reçoivent jamais la clé).
+
+## Test manuel du niveau 2 (T5)
+
+Sur l'onglet **L2 — Structurer l'appel** :
+
+1. **Le bloc « s'allume »** — sans clé ni exécution, cocher « System prompt » :
+   la clé `system` apparaît dans le JSON du panneau Requête avec un flash.
+   Même chose pour la température (slider 0–1) et `max_tokens`.
+2. **Preset « Température 0 vs 1 » en deux clics** (clé valide requise) —
+   cliquer le preset, puis « Exécuter ×10 sur A et B » : les deux galeries se
+   remplissent simultanément (4 appels en parallèle au total, répartis), et
+   les deux lignes de synthèse montrent des distributions de longueurs
+   visiblement différentes (temp 1 disperse plus que temp 0).
+3. **Diff A/B** — la ligne « Différences A → B » liste exactement le paramètre
+   modifié ; le bloc et la ligne JSON concernés sont surlignés en ambre dans
+   les deux colonnes. Modifier un second paramètre sur B l'ajoute au diff.
+4. **Preset « Sans / avec system prompt »** — exécuter A et B : la réponse B
+   (cadrée par le system prompt) est nettement plus courte et se termine par
+   une action recommandée.

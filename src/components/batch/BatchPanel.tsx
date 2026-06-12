@@ -1,6 +1,7 @@
-// Galerie ×N (T3) : barre de progression, grille de cartes (une par run) et
-// ligne de synthèse longueurs/formats — c'est ici que la stochasticité se
-// constate. Un échec sur un run reste local à sa carte.
+// Galerie ×N (T3, UI partagée depuis T5) : barre de progression, grille de
+// cartes (une par run) et ligne de synthèse longueurs/formats — c'est ici que
+// la stochasticité se constate. Un échec sur un run reste local à sa carte.
+// Utilisée par L1 (pleine largeur) et par chaque colonne du mode A/B de L2.
 
 import { useEffect, useState } from 'react'
 import type { LLMResult, LLMSuccess } from '../../engine'

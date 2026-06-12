@@ -12,7 +12,7 @@ import {
   type SSEEvent,
 } from '../../engine'
 import { useProvider } from '../../state/ProviderContext'
-import { BatchPanel, type BatchState } from './BatchPanel'
+import { BatchPanel, type BatchState } from '../../components/batch/BatchPanel'
 import { RawStreamPanel, type TimedEvent } from './RawStreamPanel'
 
 const BATCH_SIZES = [5, 10, 20]
