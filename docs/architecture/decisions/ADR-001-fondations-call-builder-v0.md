@@ -70,4 +70,8 @@ nommage L1–L4, clé API en mémoire seulement, cible statique) sont encodés d
 
 ## Notes de révision
 
-—
+- 2026-06-12 — la conséquence « routage hash en T10 » est soldée par
+  [ADR-010](ADR-010-deploiement-statique-routeur-hash-accueil-pages-actions.md)
+  (routeur hash maison) ; le dépôt GitHub prévu « en T10 » est préparé (branche
+  renommée `main`, workflow Pages), sa création reste une étape manuelle
+  documentée dans le README.

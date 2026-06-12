@@ -10,7 +10,7 @@
 Outil pédagogique mono-page pour Product Owners : construire un appel LLM bloc par bloc
 sur 4 niveaux (L1 appel nu, L2 structuration, L3 skills, L4 MCP). Front statique pur,
 zéro backend, mode BYOK (clé Anthropic en mémoire uniquement). Développé ticket par
-ticket depuis `spec.md` ; état actuel : **T9 livré** (niveaux L1 à L4 opérationnels,
+ticket depuis `spec.md` ; état actuel : **T10 livré** (niveaux L1 à L4 opérationnels,
 panneau « Requête » T4 partout : JSON exact annoté + export Python / curl / JS. L2
 ajoute les blocs de structuration activables — system prompt, température,
 max_tokens, et depuis T6 le schéma de sortie — qui « s'allument » dans le JSON, le
@@ -26,7 +26,10 @@ simule les échanges MCP : scénario scripté en 5 temps rejouable pas à pas, t
 colonnes Agent / Protocole / Tool, messages JSON-RPC réels annotés au survol,
 schéma du tool aligné sur T6. Depuis T9, L2 embarque aussi le mode chaos : un
 harness — retry sur non-conformité, fallback de modèle — démontré sur pannes
-simulées, timeline horodatée et compteur de coût).
+simulées, timeline horodatée et compteur de coût. Depuis T10, l'app est
+déployable : routage hash (`#/l1`…`#/l4`, onglets partageables et rechargeables),
+page d'accueil atelier, workflow GitHub Pages sur push `main`, cible o2switch
+statique documentée).
 
 ## 2. Stack
 
@@ -97,6 +100,14 @@ simulées, timeline horodatée et compteur de coût).
   (archive « store » CRC-32 écrite à la main, zéro dépendance, reproductible).
   Le contrat de sortie est en lecture seule en L3 : il se modifie au niveau 2,
   « Replier à nouveau » resynchronise — cf. ADR-007.
+- **Routeur & accueil** (`src/router.ts`, `src/components/HomePage.tsx`) : depuis
+  T10 — la page courante vit dans le fragment d'URL (`parsePageHash`/`pageHash`,
+  fonctions pures testées, fragment inconnu → accueil), `App.tsx` s'abonne à
+  `hashchange`. L'accueil n'est pas un niveau : cartes des 4 niveaux (phrases
+  centralisées dans `levels/index.ts`, champ `summary`) et encart « se
+  connecter » (clé ou proxy atelier à venir). Déploiement :
+  `.github/workflows/deploy.yml` (test + build + Pages sur push `main`) ;
+  o2switch = dépôt du contenu de `dist/` — cf. ADR-010.
 - **Config** (`src/config/`) : constantes partagées — liste des modèles du sélecteur
   (`models.ts`, Haiku 4.5 défaut + Sonnet 4.6), URL de base Anthropic, et défauts des
   niveaux (`defaults.ts` : prompt fil rouge, `max_tokens` par défaut).
@@ -144,6 +155,10 @@ Journal complet dans [`decisions/`](decisions/README.md). Notables :
   mode chaos : harness pur à validateur injecté dans l'engine, pannes
   simulées en décorateur de provider (le harness ne sait pas qu'il est
   testé), timeline = projection des `HarnessStep`.
+- [ADR-010](decisions/ADR-010-deploiement-statique-routeur-hash-accueil-pages-actions.md) —
+  déploiement statique : routeur hash maison en fonctions pures (pas de lib),
+  accueil hors `levels[]` avec résumés centralisés, déploiement Pages par
+  workflow Actions sur `main`, o2switch en dépôt de `dist/`.
 
 ## 5. Patterns prescriptifs
 

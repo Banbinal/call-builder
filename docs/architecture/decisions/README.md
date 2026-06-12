@@ -15,3 +15,4 @@
 | 007 | [Niveau L3 — config L2 en contexte partagé, skill/lint/zip en modules purs, export zip sans dépendance](ADR-007-niveau-l3-contexte-partage-modules-purs-zip.md) | acceptée | 2026-06-12 |
 | 008 | [Niveau L4 — scénario MCP scripté en données statiques, annotations injectables, schéma du tool aligné T6 par construction](ADR-008-niveau-l4-scenario-mcp-statique-annotations-injectables.md) | acceptée | 2026-06-12 |
 | 009 | [Mode chaos — harness pur à validateur injecté, pannes simulées en décorateur de provider](ADR-009-mode-chaos-harness-pur-validateur-injecte-chaos-decorateur.md) | acceptée | 2026-06-12 |
+| 010 | [Déploiement statique T10 — routeur hash maison, accueil hors niveaux, Pages via Actions](ADR-010-deploiement-statique-routeur-hash-accueil-pages-actions.md) | acceptée | 2026-06-12 |
